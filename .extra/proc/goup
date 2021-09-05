@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+declare -i num=$$
+declare -i ret=0
+while [[ "$(ps -p $num -o comm=)" != "make" ]]; do
+	num=$(ps -o ppid= $num) || ret=$?
+	if ((ret)); then
+		rm -- "$1"
+		exit $ret
+	fi
+done
+.extra/proc/kildel $num "$1" & disown

@@ -1,0 +1,14 @@
+#!/bin/bash
+source "$1"
+declare -- output="$2"
+shift 2
+for item in "$@"; do
+	"$item" output "$output"
+	ret=$?
+	if [[ "$ret" != 0 ]]; then
+		echo "$output"
+		exit $ret
+	fi
+done
+echo "$output"
+exit

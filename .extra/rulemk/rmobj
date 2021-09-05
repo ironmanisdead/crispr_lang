@@ -1,0 +1,6 @@
+#!/bin/bash
+shopt -s nullglob
+shopt -s dotglob
+for file in *.o; do
+	rm -v -- "$file"
+done

@@ -1,0 +1,68 @@
+#!/bin/bash
+source .extra/rulemk/namegen
+function genrule() {
+	local -n genrule_base=$1
+	local -n genrule_extr=$2
+	shift 2
+	genrule_base=
+	genrule_extr=
+	declare -- flags="-MP -M"
+	declare -i usable=1
+	case "$1" in
+		"+M")
+			flags="-MP -MM"
+			shift
+			;;
+		"--")
+			usable=0
+			shift
+	esac
+	while ((usable)); do
+		case "$1" in
+			"--")
+				usable=0
+				shift
+				;;
+			"-"*)
+				flags+=" $1"
+				shift
+				;;
+			*)
+				usable=0
+				;;
+		esac
+	done
+	declare -- fname
+	if [[ "$1" =~ ^'/' ]]; then
+		fname="$1"
+	else
+		fname="./$1"
+	fi
+	declare -- prerule
+	if [[ "$#" -gt 1 ]]; then
+		prerule="$(cc $flags -I "$2" "$fname.$C_EXT")" || return $?
+	else
+		prerule="$(cc $flags "$fname.$C_EXT")" || return $?
+	fi
+	declare -- line
+	declare -i decision=1
+	while IFS= read -r -d $'\n' line; do
+		if ((decision)); then
+			if [[ -n "$genrule_base" ]]; then
+				genrule_base+=$'\n'"$line"
+			else
+				genrule_base="$line"
+			fi
+			if ! [[ "$line" =~ ' \'$ ]]; then
+				decision=0
+			fi
+		else
+			if [[ -n "$genrule_extr" ]]; then
+				genrule_extr+=$'\n'"$line"
+			else
+				genrule_extr="$line"
+			fi
+		fi
+	done < <(printf "%s\n" "$prerule")
+	genrule_extr="${genrule_extr/"$1.$C_EXT"/"$name.$C_EXT"}"
+}

@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+source .extra/rulemk/rulegen
+declare -- rule ruleend
+declare -- defval="DEF_lib${current_lib}"
+defval="${!defval}"
+defval="${defval/"'"/""}"
+genrule rule ruleend +M $CFLAGS "${defval}" -- "$1"
+rule="${rule/"$1.o"/".$1.o"}"
+rule+=" | headers"
+rule+=$'\n\t'"\$(if \$(wildcard ${1}.mk.2),,$0 $1)"
+rule+=$'\n\t'"\$(CC) \$(CFLAGS) \$(DEF_lib\$(current_lib)) -o .${1}.o -c \$(OFLAGS) $1.$C_EXT"
+rule+=$'\n'"$ruleend"
+touch "${1}.mk.2"
+.extra/proc/goup "${1}.mk.2"
+echo "$rule" >.${1}.mk

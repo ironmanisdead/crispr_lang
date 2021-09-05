@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+if [[ -d "${installabs}/include/${current_head}" ]]; then
+	(cd headers && .extra/rmdep)
+fi
+
+echo "making include directory"
+mkdir -p -v "${installabs}/include/${current_head}/.part"
+mkdir -p -v "${installabs}/include/${current_head}/.c_extern"
+echo "installing header files"
+shopt -s nullglob
+declare -a baseheaders=(headers/*.$H_EXT)
+if ((${#baseheaders[@]})); then
+	cp --preserve=timestamps -u -t "${installabs}/include/${current_head}" "${baseheaders[@]}"
+fi
+declare -a subheaders=(headers/.part/*.$H_EXT)
+if ((${#subheaders[@]})); then
+	cp --preserve=timestamps -u -t "${installabs}/include/${current_head}/.part" "${subheaders[@]}"
+fi
+declare -a sysheaders=(headers/.c_extern/*.h)
+if ((${#sysheaders[@]})); then
+	cp --preserve=timestamps -u -t "${installabs}/include/${current_head}/.c_extern" "${sysheaders[@]}"
+fi

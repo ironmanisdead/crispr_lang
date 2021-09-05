@@ -1,0 +1,6 @@
+#!/bin/bash
+if [[ -f "${installdir}/lib64/lib$current_lib" ]]; then
+	ln -sfv "${installdir}/include" include
+else
+	ln -sfv .include include
+fi

@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+if [[ -f "$installabs"/lib64/lib$install_dir.a ]]; then
+	rm -v "$installabs"/lib64/lib$current_lib.a
+fi
+shopt -s nullglob
+declare -a files
+if [[ -f "$installabs/lib64/lib$current_lib.a" ]]; then
+	rm -v "$installabs/lib64/lib$current_lib.a"
+fi
+if [[ -f "$installabs"/lib64/lib$current_lib.so ]]; then
+	rm -v "$installabs"/lib64/lib$current_lib.so
+	declare -a rules=(.*.mk)
+	files=(*.o)
+	if ((${#rules[@]})); then
+		echo "removing pre-made test rules as they would now be invalidated"
+		rm -v -- "${rules[@]}"
+	fi
+	if ((${#files[@]})); then
+		echo "removing pre-made test objects as they would now be invalidated"
+		rm -v -- "${files[@]}"
+	fi
+fi
+ln -snfv .include libs/include
+(cd libs && make uninstall)
+if ((${#files[@]})); then
+	make -- "${files[@]}"
+fi

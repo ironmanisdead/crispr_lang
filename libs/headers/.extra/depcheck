@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+declare -- list="$(find -name "*.${H_EXT}" -and ! -name 'All.${H_EXT}' | sort)"
+if [[ -e "All.${H_EXT}" ]] && [[ -e ".dirhash" ]] && sha256sum --status -c .dirhash < <(echo "$list"); then
+	echo "up to date"
+	exit 0
+fi
+declare -- text
+if [[ ! -e "All.${H_EXT}" ]]; then
+	echo "generating dependencies..."
+	text=$'#ifndef __UTILS_ALL_HPP\n#define __UTILS_ALL_HPP 1'
+	for file in *.${H_EXT}; do
+		text+=$'\n'"#include \"$file\""
+	done
+	text+=$'\n#endif'
+	echo "$text" >All.${H_EXT}
+else
+	declare -- intro=""
+	declare -- ending=""
+	declare -- line
+	declare -- haslist=false
+	declare -i FD 
+	echo "updating file list..."
+	{
+		while read line <&"$FD"; do
+			if [[ "$line" =~ ^"#include \"" ]]; then
+				haslist=true
+				break
+			elif [[ "$intro" == "" ]]; then
+				intro="$line"
+			else
+				intro+=$'\n'"$line"
+			fi
+		done
+		if ! $haslist; then
+			rm All.${H_EXT}
+			exec .extra/depcheck
+		fi
+		while read line <&"$FD"; do
+			if ! [[ "$line" =~ ^"#include \"" ]]; then
+				ending="$line"
+				break
+			fi
+		done
+		while read line <&"$FD"; do
+			ending+=$'\n'"$line"
+		done
+	} {FD}<All.${H_EXT}
+	text="$intro"
+	for item in *.${H_EXT}; do
+		if [[ "$item" != "All.${H_EXT}" ]]; then
+			text+=$'\n'"#include \"$item\""
+		fi
+	done
+	text+=$'\n'"$ending"
+	echo "$text" >All.${H_EXT}
+fi
+echo "$list" | sha256sum >.dirhash

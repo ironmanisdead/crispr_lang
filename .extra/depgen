@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+if [[ ! -f "$targetfile.$C_EXT" ]]; then
+	exit 1
+fi
+source .extra/rulemk/rulegen
+declare -- name wild shname
+genname name "$targetfile"
+genwild wild "$name"
+genshname shname "$wild"
+declare -- path wpath shpath
+genname path "${installabs}"
+genwild wpath "$path"
+genshname shpath "$wpath"
+set +e
+IFS= read -d '' info <<'EOF'
+#this file is automatically created and modified,
+#please do not modify or delete it yourself.
+EOF
+set -e
+declare -- rulestr ruleend trail
+genrule rulestr ruleend $CFLAGS -- "$targetfile" libs/include
+if test -f "${installabs}/lib64/lib$current_lib.so"; then
+	trail="-I ${shpath}/include/ -L ${shpath}/lib64/ -Wl,-rpath,${shpath}/lib64/ -Wl,-l$current_lib"
+else
+	trail=$'-I "libs/include/" -L "$$(pwd)/libs/" -Wl,-rpath,\'$$ORIGIN/libs/\' -Wl,-l:.shared.so'
+fi
+rulestr+=" | libs"
+declare -- rule="$info"$'\n'"$rulestr"
+rule+=$'\n\t'"\$(shell test -f ./$shname.mk.2)"
+rule+=$'\n\t'"\$(if \$(filter-out 0,\$(.SHELLSTATUS)),$0)"
+rule+=$'\n\t'"\$(CC) -o ./$shname.o ./$shname.$C_EXT \$(CFLAGS) \$(LDFLAGS) \$(LDLIBS) $trail"
+rule+=$'\n'"$ruleend"
+echo "generating $targetfile.mk.2"
+touch "$targetfile.mk.2"
+.extra/proc/goup "$targetfile.mk.2"
+echo "$rule" >".$targetfile.mk"

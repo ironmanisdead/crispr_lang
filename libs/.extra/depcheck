@@ -1,0 +1,17 @@
+#!/bin/bash
+shopt -s nullglob
+declare -- flag=false
+declare -- base
+for item in .*.mk; do
+	base="${item%'.mk'}"
+	base="${base#'.'}"
+	if [[ ! -e "${base}.$C_EXT" ]]; then
+		echo "removing ${base}.$C_EXT from dependencies"
+		rm -f .${base}.mk .${base}.o
+		flag=true
+	fi
+done
+
+if $flag; then
+	rm -f .shared.so .static.a
+fi

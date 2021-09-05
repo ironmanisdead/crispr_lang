@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+shopt -s nullglob
+
+declare -- item included
+function depremove() {
+	local origin="${installabs}${1}"
+	local wildcard="${origin}${2}"
+	local item
+	for included in $wildcard; do
+		if [[ ! -f "${included}" ]]; then
+			continue
+		fi
+		item="${included#"${origin}"}"
+		if [[ ! -f "$item" ]]; then
+			rm -v "$included"
+		fi
+	done
+}
+depremove "/include/${current_head}/" "*.$H_EXT"
+depremove "/include/${current_head}/.part/" "*.$H_EXT"
+depremove "/include/${current_head}/.c_extern/" "*.h"

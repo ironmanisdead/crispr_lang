@@ -1,0 +1,5 @@
+#!/bin/bash
+shopt -s nullglob
+for file in .*.mk; do
+	rm -v -- "$file"
+done

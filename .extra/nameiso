@@ -1,0 +1,9 @@
+#!/bin/bash
+declare -- starstr="$1"
+declare -i seps=0
+while [[ -n "$starstr" ]]; do
+	starstr="${starstr%'/'*}"
+	echo "$starstr"
+	let seps++
+done
+echo $seps

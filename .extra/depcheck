@@ -1,0 +1,11 @@
+#!/bin/bash
+shopt -s nullglob
+declare -- base
+for item in .*.mk; do
+	base="${item%'.mk'}"
+	base="${base#'.'}"
+	if [[ ! -e "${base}.$C_EXT" ]]; then
+		echo "removing ${base} from dependencies"
+		rm -f ".${base}.mk" "${base}.o"
+	fi
+done

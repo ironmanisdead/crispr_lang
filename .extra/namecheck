@@ -1,0 +1,8 @@
+#!/bin/bash
+shopt -s nullglob
+for file in *.$C_EXT; do
+	if [[ "$file" =~ ' ' ]]; then
+		printf "error: %q has spaces and cannot be escaped by make.\n" "$file" >&2
+		exit 1
+	fi
+done	
