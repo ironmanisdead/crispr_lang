@@ -8,7 +8,7 @@ fi
 declare -- text
 if [[ ! -e "All.${H_EXT}" ]]; then
 	echo "generating dependencies..."
-	text=$'#ifndef __UTILS_ALL_HPP\n#define __UTILS_ALL_HPP 1'
+	text="#if ! DLL_ALL_${current_lib}"$'\n'"#define DLL_ALL_${current_lib} 1"
 	for file in *.${H_EXT}; do
 		text+=$'\n'"#include \"$file\""
 	done

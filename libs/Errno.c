@@ -21,7 +21,7 @@ DLL_PUBLIC const char* Crispr_f_Errno(Crispr_tn_Errno stat) {
 		case Crispr_cn_EFAULT:
 			return "Memory fault in userspace.";
 		case Crispr_cn_EBADPTR:
-			return "Unknown pointer in cextensions.";
+			return "Unknown pointer in crispr-api.";
 		case Crispr_cn_ETYPE:
 			return "Unknown type error.";
 		case Crispr_cn_ECONV:

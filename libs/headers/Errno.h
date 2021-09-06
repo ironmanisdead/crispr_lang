@@ -12,7 +12,7 @@ enum _Crispr_tn_Errno {
 	Crispr_cn_ERANGE, //index out of range
 	Crispr_cn_EDOMAIN, //input outside mathematical domain
 	Crispr_cn_EFAULT, //memory fault in userspace (rare/debugging)
-	Crispr_cn_EBADPTR, //unrecognized memory pointer in cextensions
+	Crispr_cn_EBADPTR, //unrecognized memory pointer in crispr-api
 	Crispr_cn_ETYPE, //unknown/general type error
 	Crispr_cn_ECONV, //invalid class/type conversion
 	Crispr_cn_EATTR, //missing/invalid type attribute
