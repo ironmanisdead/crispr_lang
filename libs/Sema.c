@@ -22,7 +22,7 @@ DLL_PUBLIC bool Crispr_f_sema_init(Crispr_t_Sema* restrict target, Crispr_t_ulon
 		atomic_store(&target->status, Crispr_cn_Sema_IDLE);
 		target->limit = limit;
 		target->counter = 1;
-		target->schedptr = Crispr_M_NULL;
+		target->schedptr = CRISPR_NULL;
 		return true;
 	}
 	{
@@ -84,7 +84,7 @@ static void crispr_f_sema_shift(Crispr_t_SemSched* rm) {
 	*prev = next;
 	if (next)
 		next->prev = prev;
-	rm->parent = Crispr_M_NULL;
+	rm->parent = CRISPR_NULL;
 }
 
 static Crispr_t_SemSched** crispr_f_sema_latest(Crispr_t_Sema* target) {
@@ -99,13 +99,13 @@ static Crispr_t_SemSched** crispr_f_sema_latest(Crispr_t_Sema* target) {
 
 static char crispr_f_sema_time(struct timespec* restrict dest, const Crispr_t_Timer* restrict src) {
 	if (src) {
-		if ((src->clock == Crispr_M_CLK_RELA) && (src->computed == 0)) {
+		if ((src->clock == CRISPR_CLK_RELA) && (src->computed == 0)) {
 			return 2;
 		} else {
 			Crispr_t_Timer time;
-			assert(Crispr_f_timeConv(&time, src, Crispr_M_CLK_UTC, Crispr_M_TIME_NANOSECOND, Crispr_M_NULL));
-			dest->tv_sec = time.computed / Crispr_M_TIME_SECOND;
-			dest->tv_nsec = time.computed % Crispr_M_TIME_SECOND;
+			assert(Crispr_f_timeConv(&time, src, CRISPR_CLK_UTC, CRISPR_TIME_NANOSECOND, CRISPR_NULL));
+			dest->tv_sec = time.computed / CRISPR_TIME_SECOND;
+			dest->tv_nsec = time.computed % CRISPR_TIME_SECOND;
 			return 1;
 		}
 	} else {
@@ -151,7 +151,7 @@ DLL_PUBLIC bool Crispr_f_sema_lock(Crispr_t_Sema* target, bool term, const Crisp
 		Crispr_t_SemSched** latest = crispr_f_sema_latest(target);
 		Crispr_t_SemSched waiter;
 		atomic_init(&waiter.parent, &crispr_c_schedbusy);
-		waiter.next = Crispr_M_NULL;
+		waiter.next = CRISPR_NULL;
 		waiter.prev = latest;
 		int i = cnd_init(&waiter.lock);
 		if (i == thrd_error) {
@@ -297,18 +297,18 @@ DLL_PUBLIC bool Crispr_f_sema_destroy(Crispr_t_Sema* target, Crispr_tn_Errno* re
 	}
 	crispr_f_sema_statrel(target, Crispr_cn_Sema_KILL);
 	mtx_lock(&target->access);
-	for (Crispr_t_SemSched* ptr = target->schedptr; ptr != Crispr_M_NULL; ptr = ptr->next) {
-		Crispr_t_Sema* loaded = atomic_exchange(&ptr->parent, Crispr_M_NULL);
+	for (Crispr_t_SemSched* ptr = target->schedptr; ptr != CRISPR_NULL; ptr = ptr->next) {
+		Crispr_t_Sema* loaded = atomic_exchange(&ptr->parent, CRISPR_NULL);
 		if (loaded == &crispr_c_schedbusy) {
 			int stat = cnd_signal(&ptr->lock);
 			(void)stat;
 			assert(stat == thrd_success);
-		} else if (loaded != Crispr_M_NULL) {
-			atomic_store(&ptr->parent, Crispr_M_NULL);
+		} else if (loaded != CRISPR_NULL) {
+			atomic_store(&ptr->parent, CRISPR_NULL);
 			cnd_destroy(&ptr->lock);
 		}
 	}
-	target->schedptr = Crispr_M_NULL;
+	target->schedptr = CRISPR_NULL;
 	mtx_unlock(&target->access);
 	while (atomic_load(&target->threads) > 1) {
 		mtx_lock(&target->access);

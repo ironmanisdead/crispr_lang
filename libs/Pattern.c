@@ -10,7 +10,7 @@ DLL_PUBLIC bool Crispr_f_PatternApply(Crispr_t_s64* restrict dest, Crispr_t_s64 
 	*dest = src;
 	if (ref->len == 0)
 		return true;
-	if (ref->rules == Crispr_M_NULL) {
+	if (ref->rules == CRISPR_NULL) {
 		if (err)
 			*err = Crispr_cn_ENULL;
 		return false;
@@ -44,7 +44,7 @@ DLL_PUBLIC bool Crispr_f_PatternRemove(Crispr_t_s64* restrict dest, Crispr_t_s64
 		*err = Crispr_cn_ENOERR;
 	if (ref->len == 0)
 		return true;
-	if (ref->rules == Crispr_M_NULL) {
+	if (ref->rules == CRISPR_NULL) {
 		if (err)
 			*err = Crispr_cn_ENULL;
 		return false;

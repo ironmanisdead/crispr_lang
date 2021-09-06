@@ -32,7 +32,7 @@ typedef struct _Crispr_t_Method Crispr_t_Method;
 typedef struct _Crispr_t_Bindings Crispr_t_Bindings;
 typedef struct _Crispr_t_Field Crispr_t_Field;
 typedef enum _Crispr_tn_Errno Crispr_tn_Errno;
-#define Crispr_M_NULL (void*)(0)
+#define CRISPR_NULL (void*)(0)
 #pragma push_macro("DLL_EXPORTED")
 #define DLL_EXPORTED DLL_EXPORT_LIB_crispr_api
 #include ".c_extern/internal-macros.h"

@@ -16,7 +16,7 @@ static bool crispr_f_clock_tai(Crispr_t_s64* restrict res, Crispr_tn_Errno* rest
 			*err = Crispr_cn_EUNKNOWN;
 		return false;
 	}
-	*res = (present.tv_sec * Crispr_M_TIME_SECOND) + present.tv_nsec;
+	*res = (present.tv_sec * CRISPR_TIME_SECOND) + present.tv_nsec;
 #elif defined DLL_OS_windows
 	if (!QueryUnbiasedInterruptTime(res)) {
 		if (err)
@@ -37,20 +37,20 @@ static bool crispr_f_clock_utc(Crispr_t_s64* restrict res, Crispr_tn_Errno* rest
 			*err = Crispr_cn_EUNKNOWN;
 		return false;
 	}
-	*res = (present.tv_sec * Crispr_M_TIME_SECOND) + present.tv_nsec;
+	*res = (present.tv_sec * CRISPR_TIME_SECOND) + present.tv_nsec;
 	return true;
 }
 
 DLL_PUBLIC const Crispr_t_Clock _Crispr_cn_CLK_ABS = {
 	"CLK_ABS: Accurate timestamp with implementation-defined epoch.",
 	&crispr_f_clock_tai,
-	{ 0, Crispr_M_NULL, },
+	{ 0, CRISPR_NULL, },
 };
 
 DLL_PUBLIC const Crispr_t_Clock _Crispr_cn_CLK_UTC = {
-	"CLK_UTC: UTC clock, adjusted from the CLK_ABS epoch.",
+	"CLK_UTC: Clock holding time adjusted from UTC epoch",
 	&crispr_f_clock_utc,
-	{ 0, Crispr_M_NULL, },
+	{ 0, CRISPR_NULL, },
 };
 
 DLL_RESTORE

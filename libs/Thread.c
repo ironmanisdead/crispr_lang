@@ -26,7 +26,7 @@ typedef struct {
 
 static int Crispr_f_thread_start(void* restrict info) {
 	Crispr_t_ThreadStart* starter = (Crispr_t_ThreadStart*)info;
-	Crispr_f_sema_unlock(&starter->lock, Crispr_M_NULL);
+	Crispr_f_sema_unlock(&starter->lock, CRISPR_NULL);
 	id = atomic_fetch_add(&nThread, 1);
 	return 0;
 }
@@ -46,13 +46,13 @@ DLL_PUBLIC bool Crispr_f_thread_init(Crispr_t_Thread* restrict dest,
 		return false;
 	}
 	Crispr_t_ThreadStart starter;
-	Crispr_f_sema_init(&starter.lock, 1, Crispr_M_NULL);
+	Crispr_f_sema_init(&starter.lock, 1, CRISPR_NULL);
 	starter.ret = mem;
 	starter.args = args;
 	starter.callback = callback;
 	switch (thrd_create(&dest->internal, &Crispr_f_thread_start, &starter)) {
 		case thrd_success:
-			Crispr_f_sema_lock(&starter.lock, false, Crispr_M_NULL, Crispr_M_NULL);
+			Crispr_f_sema_lock(&starter.lock, false, CRISPR_NULL, CRISPR_NULL);
 			return true;
 		case thrd_nomem:
 			if (stat)
