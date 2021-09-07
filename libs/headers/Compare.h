@@ -3,12 +3,12 @@
 
 DLL_HIDE
 
-typedef enum {
-	Crispr_cn_CMP_GT, //greater-than
-	Crispr_cn_CMP_LT, //less-than
-	Crispr_cn_CMP_EQ, //equal-to
-	Crispr_cn_CMP_NQ, //incomparable
-} Crispr_Compare;
+typedef char Crispr_Compare;
+
+#define CRISPR_CMP_NQ (char)0 //incomparable
+#define CRISPR_CMP_LT (char)1 //less-than
+#define CRISPR_CMP_GT (char)2 //greater-than
+#define CRISPR_CMP_EQ (char)3 //equal-to
 
 DLL_PUBLIC const char* Crispr_compareDesc(Crispr_Compare);
 

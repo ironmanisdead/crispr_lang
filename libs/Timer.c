@@ -90,14 +90,14 @@ DLL_PUBLIC Crispr_Compare Crispr_timeCmp(const Crispr_Timer* restrict p1,
 	Crispr_Timer t1;
 	Crispr_Timer t2;
 	if (!Crispr_timeConv(&t1, p1, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
-		return Crispr_cn_CMP_NQ;
+		return CRISPR_CMP_NQ;
 	if (!Crispr_timeConv(&t2, p2, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
-		return Crispr_cn_CMP_NQ;
+		return CRISPR_CMP_NQ;
 	if (t1.rawval == t2.rawval)
-		return Crispr_cn_CMP_EQ;
+		return CRISPR_CMP_EQ;
 	if (t1.rawval > t2.rawval)
-		return Crispr_cn_CMP_GT;
-	return Crispr_cn_CMP_LT;
+		return CRISPR_CMP_GT;
+	return CRISPR_CMP_LT;
 }
 
 DLL_PUBLIC const Crispr_Timer Crispr_c_present = { CRISPR_CLK_RELA, 0, 0, CRISPR_TIME_NANOSECOND };
