@@ -6,10 +6,10 @@
 #endif
 DLL_HIDE
 
-DLL_PUBLIC bool Crispr_f_timeNow(Crispr_t_Timer* restrict dest, const Crispr_t_Clock* clock,
-		Crispr_t_s64 offset, Crispr_t_u64 scale, Crispr_tn_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_timeNow(Crispr_Timer* restrict dest, const Crispr_Clock* clock,
+		Crispr_S64 offset, Crispr_U64 scale, Crispr_Errno* restrict err) {
 	if (err)
-		*err = Crispr_cn_ENOERR;
+		*err = CRISPR_ERRNOERR;
 	if (clock == CRISPR_CLK_RELA) {
 		dest->clock = CRISPR_CLK_RELA;
 		dest->rawval = offset * scale;
@@ -20,13 +20,13 @@ DLL_PUBLIC bool Crispr_f_timeNow(Crispr_t_Timer* restrict dest, const Crispr_t_C
 	dest->scale = 0;
 	if (scale == 0) {
 		if (err)
-			*err = Crispr_cn_EINVAL;
+			*err = CRISPR_ERRINVAL;
 		return false;
 	}
 	if (!clock->now(&dest->rawval, err))
 		return false;
 	dest->rawval += offset;
-	if (!Crispr_f_PatternApply(&dest->computed, dest->rawval, &clock->pattern, err))
+	if (!Crispr_patternApply(&dest->computed, dest->rawval, &clock->pattern, err))
 		return false;
 	dest->scale = scale;
 	dest->clock = clock;
@@ -34,14 +34,14 @@ DLL_PUBLIC bool Crispr_f_timeNow(Crispr_t_Timer* restrict dest, const Crispr_t_C
 	return true;
 }
 
-DLL_PUBLIC bool Crispr_f_timeConv(Crispr_t_Timer* restrict dest, const Crispr_t_Timer* restrict src,
-		const Crispr_t_Clock* restrict clock, Crispr_t_u64 scale, Crispr_tn_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_timeConv(Crispr_Timer* restrict dest, const Crispr_Timer* restrict src,
+		const Crispr_Clock* restrict clock, Crispr_U64 scale, Crispr_Errno* restrict err) {
 	if (err)
-		*err = Crispr_cn_ENOERR;
+		*err = CRISPR_ERRNOERR;
 	dest->scale = 0;
 	if ((src->scale == 0) || (scale == 0)) {
 		if (err)
-			*err = Crispr_cn_EDOMAIN;
+			*err = CRISPR_ERRDOMAIN;
 		return false;
 	}
 	if (src->clock == clock) {
@@ -55,28 +55,28 @@ DLL_PUBLIC bool Crispr_f_timeConv(Crispr_t_Timer* restrict dest, const Crispr_t_
 		if (!clock->now(&dest->rawval, err))
 			return false;
 		dest->rawval += src->rawval;
-		if (!Crispr_f_PatternApply(&dest->computed, dest->rawval, &clock->pattern, err))
+		if (!Crispr_patternApply(&dest->computed, dest->rawval, &clock->pattern, err))
 			return false;
 	} else if (clock == CRISPR_CLK_RELA) {
-		Crispr_t_s64 abstime;
+		Crispr_S64 abstime;
 		if (!src->clock->now(&abstime, err))
 			return false;
 		dest->rawval = src->rawval - abstime;
 		dest->computed = dest->rawval;
 	} else if (src->clock->now == clock->now) {
 		dest->rawval = src->rawval;
-		if (!Crispr_f_PatternApply(&dest->computed, dest->rawval, &clock->pattern, err))
+		if (!Crispr_patternApply(&dest->computed, dest->rawval, &clock->pattern, err))
 			return false;
 	} else { //if both clock->now's are different
-		Crispr_t_s64 d1;
+		Crispr_S64 d1;
 		if (!clock->now(&d1, err))
 			return false;
-		Crispr_t_s64 d2;
+		Crispr_S64 d2;
 		if (!src->clock->now(&d2, err))
 			return false;
-		Crispr_t_s64 diff = d1 - d2;
+		Crispr_S64 diff = d1 - d2;
 		dest->rawval = src->rawval + diff;
-		if (!Crispr_f_PatternApply(&dest->computed, dest->rawval, &clock->pattern, err))
+		if (!Crispr_patternApply(&dest->computed, dest->rawval, &clock->pattern, err))
 			return false;
 	}
 	dest->clock = clock;
@@ -85,13 +85,13 @@ DLL_PUBLIC bool Crispr_f_timeConv(Crispr_t_Timer* restrict dest, const Crispr_t_
 	return true;
 }
 
-DLL_PUBLIC Crispr_t_Compare Crispr_f_timeCmp(const Crispr_t_Timer* restrict p1,
-		const Crispr_t_Timer* restrict p2, Crispr_tn_Errno* restrict err) {
-	Crispr_t_Timer t1;
-	Crispr_t_Timer t2;
-	if (!Crispr_f_timeConv(&t1, p1, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
+DLL_PUBLIC Crispr_Compare Crispr_timeCmp(const Crispr_Timer* restrict p1,
+		const Crispr_Timer* restrict p2, Crispr_Errno* restrict err) {
+	Crispr_Timer t1;
+	Crispr_Timer t2;
+	if (!Crispr_timeConv(&t1, p1, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
 		return Crispr_cn_CMP_NQ;
-	if (!Crispr_f_timeConv(&t2, p2, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
+	if (!Crispr_timeConv(&t2, p2, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
 		return Crispr_cn_CMP_NQ;
 	if (t1.rawval == t2.rawval)
 		return Crispr_cn_CMP_EQ;
@@ -100,6 +100,6 @@ DLL_PUBLIC Crispr_t_Compare Crispr_f_timeCmp(const Crispr_t_Timer* restrict p1,
 	return Crispr_cn_CMP_LT;
 }
 
-DLL_PUBLIC const Crispr_t_Timer Crispr_c_present = { CRISPR_CLK_RELA, 0, 0, CRISPR_TIME_NANOSECOND };
+DLL_PUBLIC const Crispr_Timer Crispr_c_present = { CRISPR_CLK_RELA, 0, 0, CRISPR_TIME_NANOSECOND };
 
 DLL_RESTORE

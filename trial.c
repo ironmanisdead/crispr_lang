@@ -6,24 +6,24 @@
 #include <stdlib.h>
 #include <assert.h>
 int main() {
-	Crispr_t_Sema mutex;
-	Crispr_f_sema_init(&mutex, 1, CRISPR_NULL);
-	Crispr_f_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
-	Crispr_t_Timer timer;
-	Crispr_f_timeNow(&timer, CRISPR_CLK_RELA, 2, CRISPR_TIME_SECOND, CRISPR_NULL);
-	Crispr_t_Timer timelock;
-	Crispr_f_timeConv(&timelock, &timer, CRISPR_CLK_UTC, CRISPR_TIME_SECOND, CRISPR_NULL);
-	Crispr_f_timeConv(&timer, &timelock, CRISPR_CLK_ABS, CRISPR_TIME_SECOND, CRISPR_NULL);
-	Crispr_f_timeConv(&timelock, &timer, CRISPR_CLK_RELA, CRISPR_TIME_SECOND, CRISPR_NULL);
-	Crispr_f_sema_lock(&mutex, false, &timelock, CRISPR_NULL);
-	Crispr_f_sema_unlock(&mutex, CRISPR_NULL);
-	Crispr_f_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
-	Crispr_tn_Errno err;
-	Crispr_f_sema_destroy(&mutex, &err);
-	printf("Status: %s\n", Crispr_f_Errno(err));
-	printf("Sema size: %zd\n", sizeof(Crispr_t_Sema));
-	printf("SemSched size: %zd\n", sizeof(Crispr_t_SemSched));
-	printf("Timer size: %zd\n", sizeof(Crispr_t_Timer));
-	printf("Clock size: %zd\n", sizeof(Crispr_t_Clock));
+	Crispr_Sema mutex;
+	Crispr_sema_init(&mutex, 1, CRISPR_NULL);
+	Crispr_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
+	Crispr_Timer timer;
+	Crispr_timeNow(&timer, CRISPR_CLK_RELA, 2, CRISPR_TIME_SECOND, CRISPR_NULL);
+	Crispr_Timer timelock;
+	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_UTC, CRISPR_TIME_SECOND, CRISPR_NULL);
+	Crispr_timeConv(&timer, &timelock, CRISPR_CLK_ABS, CRISPR_TIME_SECOND, CRISPR_NULL);
+	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_RELA, CRISPR_TIME_SECOND, CRISPR_NULL);
+	Crispr_sema_lock(&mutex, false, &timelock, CRISPR_NULL);
+	Crispr_sema_unlock(&mutex, CRISPR_NULL);
+	Crispr_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
+	Crispr_Errno err;
+	Crispr_sema_destroy(&mutex, &err);
+	printf("Status: %s\n", Crispr_errno(err));
+	printf("Sema size: %zd\n", sizeof(Crispr_Sema));
+	printf("SemSched size: %zd\n", sizeof(Crispr_SemSched));
+	printf("Timer size: %zd\n", sizeof(Crispr_Timer));
+	printf("Clock size: %zd\n", sizeof(Crispr_Clock));
 	exit(0);
 }

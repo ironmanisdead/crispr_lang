@@ -3,4 +3,4 @@
 
 typedef struct {
 	cnd_t lockobj;
-} Crispr_t_BasicObject;
+} Crispr_BasicObject;

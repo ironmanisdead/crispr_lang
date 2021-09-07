@@ -8,7 +8,7 @@
 
 DLL_HIDE
 
-DLL_LOCAL char _Crispr_f_FlagGet(volatile Crispr_t_Lock* obj, bool wait) {
+DLL_LOCAL char _Crispr_flagGet(volatile Crispr_Lock* obj, bool wait) {
 	char val = CRISPR_LOCK_USED;
 	if (wait)
 		val |= CRISPR_LOCK_SPEC;
@@ -21,36 +21,36 @@ DLL_LOCAL char _Crispr_f_FlagGet(volatile Crispr_t_Lock* obj, bool wait) {
 	}
 }
 
-DLL_LOCAL void _Crispr_f_FlagSet(volatile Crispr_t_Lock* obj, char setting) {
+DLL_LOCAL void _Crispr_flagSet(volatile Crispr_Lock* obj, char setting) {
 	assert(atomic_load(&obj->flags) & CRISPR_LOCK_USED);
 	atomic_store(&obj->flags, setting);
 }
 
-DLL_PUBLIC void Crispr_f_lock_init(Crispr_t_Lock* restrict obj) {
+DLL_PUBLIC void Crispr_lock_init(Crispr_Lock* restrict obj) {
 	atomic_init(&obj->flags, CRISPR_LOCK_NONE);
 }
 
-DLL_PUBLIC bool Crispr_f_lock_alloc(volatile Crispr_t_Lock* obj, Crispr_t_size size, bool overwrite, Crispr_tn_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_lock_alloc(volatile Crispr_Lock* obj, Crispr_Size size, bool overwrite, Crispr_Errno* restrict err) {
 	if (err)
-		*err = Crispr_cn_ENOERR;
-	char lock = _Crispr_f_FlagGet(obj, false);
+		*err = CRISPR_ERRNOERR;
+	char lock = _Crispr_flagGet(obj, false);
 	if ((!overwrite) && (lock != CRISPR_LOCK_NONE)) {
 		if (err)
-			*err = Crispr_cn_EACCESS;
+			*err = CRISPR_ERRACCESS;
 		return false;
 	}
-	void* edit = Crispr_f_malloc(size);
+	void* edit = Crispr_malloc(size);
 	if (!edit) {
-		_Crispr_f_FlagSet(obj, lock);
+		_Crispr_flagSet(obj, lock);
 		if (err)
-			*err = Crispr_cn_ENOMEM;
+			*err = CRISPR_ERRNOMEM;
 		return false;
 	}
 	if (lock & CRISPR_LOCK_RPTR) {
-		Crispr_f_free(obj->entry.edit);
+		Crispr_free(obj->entry.edit);
 	}
 	obj->entry.edit = edit;
-	_Crispr_f_FlagSet(obj, CRISPR_LOCK_RPTR);
+	_Crispr_flagSet(obj, CRISPR_LOCK_RPTR);
 	return true;
 }
 

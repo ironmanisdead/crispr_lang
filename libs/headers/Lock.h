@@ -24,17 +24,17 @@ typedef struct {
 		float flot;
 		double dbl;
 		struct {
-			Crispr_t_size len;
+			Crispr_Size len;
 			union {
 				const void* view;
 				void* edit;
 			};
 		} entry;
 	};
-} Crispr_t_Lock;
+} Crispr_Lock;
 
-DLL_PUBLIC void Crispr_f_lock_init(Crispr_t_Lock* restrict object);
+DLL_PUBLIC void Crispr_lock_init(Crispr_Lock* restrict object);
 
-DLL_PUBLIC bool Crispr_f_lock_alloc(volatile Crispr_t_Lock* obj, Crispr_t_size size, bool overwrite, Crispr_tn_Errno* restrict err);
+DLL_PUBLIC bool Crispr_lock_alloc(volatile Crispr_Lock* obj, Crispr_Size size, bool overwrite, Crispr_Errno* restrict err);
 
 DLL_RESTORE

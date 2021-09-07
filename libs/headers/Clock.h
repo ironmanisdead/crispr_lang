@@ -6,14 +6,14 @@ DLL_HIDE
 
 typedef struct {
 	const char* timename;
-	bool (*now)(Crispr_t_s64* restrict res, Crispr_tn_Errno* restrict err);
-	Crispr_t_Pattern pattern;
-} Crispr_t_Clock;
+	bool (*now)(Crispr_S64* restrict res, Crispr_Errno* restrict err);
+	Crispr_Pattern pattern;
+} Crispr_Clock;
 
-DLL_PUBLIC extern const Crispr_t_Clock _Crispr_cn_CLK_ABS;
-DLL_PUBLIC extern const Crispr_t_Clock _Crispr_cn_CLK_UTC;
+DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_ABS;
+DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_UTC;
 
-#define CRISPR_CLK_RELA ((const Crispr_t_Clock*)0)
+#define CRISPR_CLK_RELA ((const Crispr_Clock*)0)
 #define CRISPR_CLK_ABS &_Crispr_cn_CLK_ABS
 #define CRISPR_CLK_UTC &_Crispr_cn_CLK_UTC
 

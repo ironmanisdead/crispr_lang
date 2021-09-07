@@ -1,4 +1,4 @@
 #pragma once
 
-DLL_LOCAL char _Crispr_f_FlagGet(volatile Crispr_t_Lock* obj, bool wait);
-DLL_LOCAL void _Crispr_f_FlagSet(volatile Crispr_t_Lock* obj, char setting);
+DLL_LOCAL char _Crispr_flagGet(volatile Crispr_Lock* obj, bool wait);
+DLL_LOCAL void _Crispr_flagSet(volatile Crispr_Lock* obj, char setting);

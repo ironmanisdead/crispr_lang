@@ -3,20 +3,20 @@
 
 DLL_HIDE
 
-DLL_PUBLIC bool Crispr_f_PatternApply(Crispr_t_s64* restrict dest, Crispr_t_s64 src,
-		const Crispr_t_Pattern* restrict ref, Crispr_tn_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_patternApply(Crispr_S64* restrict dest, Crispr_S64 src,
+		const Crispr_Pattern* restrict ref, Crispr_Errno* restrict err) {
 	if (err)
-		*err = Crispr_cn_ENOERR;
+		*err = CRISPR_ERRNOERR;
 	*dest = src;
 	if (ref->len == 0)
 		return true;
 	if (ref->rules == CRISPR_NULL) {
 		if (err)
-			*err = Crispr_cn_ENULL;
+			*err = CRISPR_ERRNULL;
 		return false;
 	}
-	for (Crispr_t_size i = 0; i < ref->len; i++) {
-		Crispr_t_Rule rule = ref->rules[i];
+	for (Crispr_Size i = 0; i < ref->len; i++) {
+		Crispr_Rule rule = ref->rules[i];
 //if (frequency == 0) it is implied that the rule only be applied once
 		if (rule.frequency == 0) {
 			if (*dest > rule.initial)
@@ -38,20 +38,20 @@ DLL_PUBLIC bool Crispr_f_PatternApply(Crispr_t_s64* restrict dest, Crispr_t_s64 
 	return true;
 }
 
-DLL_PUBLIC bool Crispr_f_PatternRemove(Crispr_t_s64* restrict dest, Crispr_t_s64 src,
-		const Crispr_t_Pattern* restrict ref, Crispr_tn_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_patternRemove(Crispr_S64* restrict dest, Crispr_S64 src,
+		const Crispr_Pattern* restrict ref, Crispr_Errno* restrict err) {
 	if (err)
-		*err = Crispr_cn_ENOERR;
+		*err = CRISPR_ERRNOERR;
 	if (ref->len == 0)
 		return true;
 	if (ref->rules == CRISPR_NULL) {
 		if (err)
-			*err = Crispr_cn_ENULL;
+			*err = CRISPR_ERRNULL;
 		return false;
 	}
 	*dest = src;
-	for (Crispr_t_size i = ref->len; i > 0; i--) {
-		Crispr_t_Rule rule = ref->rules[i-1];
+	for (Crispr_Size i = ref->len; i > 0; i--) {
+		Crispr_Rule rule = ref->rules[i-1];
 //if (frequency == 0) it is implied that the rule only be applied once
 		if (rule.frequency == 0) {
 			if (*dest > rule.initial)

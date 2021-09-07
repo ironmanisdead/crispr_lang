@@ -3,22 +3,22 @@
 
 DLL_HIDE
 
-struct _Crispr_t_State {
-	Crispr_t_Sema statelock;
-	Crispr_t_size lockmem;
-	Crispr_t_size lockent;
-	Crispr_t_Sema* typelocks;
-	Crispr_t_size typemem;
-	Crispr_t_size typeent;
-	Crispr_t_Class* types;
+struct _Crispr_State {
+	Crispr_Sema statelock;
+	Crispr_Size lockmem;
+	Crispr_Size lockent;
+	Crispr_Sema* typelocks;
+	Crispr_Size typemem;
+	Crispr_Size typeent;
+	Crispr_Class* types;
 };
 
 #ifdef __GNUC__
- #pragma GCC poison _Crispr_t_State
+ #pragma GCC poison _Crispr_State
 #endif
 
-DLL_PUBLIC bool Crispr_f_newState(Crispr_t_State* restrict state, Crispr_tn_Errno* restrict status);
+DLL_PUBLIC bool Crispr_newState(Crispr_State* restrict state, Crispr_Errno* restrict status);
 
-DLL_PUBLIC bool Crispr_f_delState(Crispr_t_State* state, Crispr_tn_Errno* restrict status);
+DLL_PUBLIC bool Crispr_delState(Crispr_State* state, Crispr_Errno* restrict status);
 
 DLL_RESTORE

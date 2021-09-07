@@ -2,47 +2,47 @@
 
 DLL_HIDE
 
-DLL_PUBLIC const char* Crispr_f_Errno(Crispr_tn_Errno stat) {
+DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 	switch (stat) {
-		case Crispr_cn_ENOERR:
+		case CRISPR_ERRNOERR:
 			return "Success.";
-		case Crispr_cn_EINVAL:
+		case CRISPR_ERRINVAL:
 			return "Invalid parameters.";
-		case Crispr_cn_ENULL:
+		case CRISPR_ERRNULL:
 			return "Null pointer error.";
-		case Crispr_cn_ENOMEM:
+		case CRISPR_ERRNOMEM:
 			return "Memory allocation failed.";
-		case Crispr_cn_EINIT:
+		case CRISPR_ERRINIT:
 			return "Error in initialization.";
-		case Crispr_cn_ERANGE:
+		case CRISPR_ERRRANGE:
 			return "Parameter out of range.";
-		case Crispr_cn_EDOMAIN:
+		case CRISPR_ERRDOMAIN:
 			return "Parameter outside mathematical domain.";
-		case Crispr_cn_EFAULT:
+		case CRISPR_ERRFAULT:
 			return "Memory fault in userspace.";
-		case Crispr_cn_EBADPTR:
+		case CRISPR_ERRBADPTR:
 			return "Unknown pointer in crispr-api.";
-		case Crispr_cn_ETYPE:
+		case CRISPR_ERRTYPE:
 			return "Unknown type error.";
-		case Crispr_cn_ECONV:
+		case CRISPR_ERRCONV:
 			return "Type/data conversion error.";
-		case Crispr_cn_EATTR:
+		case CRISPR_ERRATTR:
 			return "Type/data attribute missing, or incorrect.";
-		case Crispr_cn_EEMPTY:
+		case CRISPR_ERREMPTY:
 			return "Object is empty.";
-		case Crispr_cn_EINTR:
+		case CRISPR_ERRINTR:
 			return "Interrupted action.";
-		case Crispr_cn_ETIMEDOUT:
+		case CRISPR_ERRTIMEDOUT:
 			return "Action was timed out.";
-		case Crispr_cn_ESTALE:
+		case CRISPR_ERRSTALE:
 			return "Reference is unusable.";
-		case Crispr_cn_EDEAD:
+		case CRISPR_ERRDEAD:
 			return "Reference became unusable mid-operation";
-		case Crispr_cn_EACCESS:
+		case CRISPR_ERRACCESS:
 			return "Access denied.";
-		case Crispr_cn_EAGAIN:
+		case CRISPR_ERRAGAIN:
 			return "Operation could not be preformed at this time.";
-		case Crispr_cn_EUNKNOWN:
+		case CRISPR_ERRUNKNOWN:
 		default:
 			return "Unknown Error.";
 	}

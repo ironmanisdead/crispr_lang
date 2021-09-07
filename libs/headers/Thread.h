@@ -6,16 +6,16 @@ DLL_HIDE
 
 typedef struct {
 	volatile _Atomic bool valid;
-	Crispr_t_ulong id;
+	Crispr_Ulong id;
 	thrd_t internal;
 	volatile _Atomic bool done;
-	volatile Crispr_t_Stack* ret;
-} Crispr_t_Thread;
+	volatile Crispr_Stack* ret;
+} Crispr_Thread;
 
-DLL_PUBLIC bool Crispr_f_thread_init(Crispr_t_Thread* restrict dest,
-		void (*callback)(Crispr_t_Stack* ret, const Crispr_t_Stack* args),
-		const Crispr_t_Stack* args, Crispr_tn_Errno* restrict stat);
+DLL_PUBLIC bool Crispr_thread_init(Crispr_Thread* restrict dest,
+		void (*callback)(Crispr_Stack* ret, const Crispr_Stack* args),
+		const Crispr_Stack* args, Crispr_Errno* restrict stat);
 
-DLL_PUBLIC Crispr_t_ulong Crispr_f_thread_id();
+DLL_PUBLIC Crispr_Ulong Crispr_thread_id();
 
 DLL_RESTORE

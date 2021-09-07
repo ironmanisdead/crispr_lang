@@ -2,33 +2,27 @@
 #include "predefs.h"
 DLL_HIDE
 
-enum _Crispr_tn_Errno {
-	Crispr_cn_ENOERR, //successful operation
-	Crispr_cn_EUNKNOWN, //unknown error
-	Crispr_cn_EINVAL, //invalid parameter
-	Crispr_cn_ENULL, //value was null
-	Crispr_cn_ENOMEM, //memory allocation failed
-	Crispr_cn_EINIT, //constructor callback failed
-	Crispr_cn_ERANGE, //index out of range
-	Crispr_cn_EDOMAIN, //input outside mathematical domain
-	Crispr_cn_EFAULT, //memory fault in userspace (rare/debugging)
-	Crispr_cn_EBADPTR, //unrecognized memory pointer in crispr-api
-	Crispr_cn_ETYPE, //unknown/general type error
-	Crispr_cn_ECONV, //invalid class/type conversion
-	Crispr_cn_EATTR, //missing/invalid type attribute
-	Crispr_cn_EEMPTY, //object is empty
-	Crispr_cn_EINTR, //interrupted in operation
-	Crispr_cn_ETIMEDOUT, //time ran out for operation
-	Crispr_cn_ESTALE, //resource already is gone
-	Crispr_cn_EDEAD, //resource died during access
-	Crispr_cn_EACCESS, //cannot access resource
-	Crispr_cn_EAGAIN, //operation did not work at this time
-};
+#define CRISPR_ERRNOERR 0ul
+#define CRISPR_ERRUNKNOWN 1ul
+#define CRISPR_ERRINVAL 2ul
+#define CRISPR_ERRNULL 3ul
+#define CRISPR_ERRNOMEM 4ul
+#define CRISPR_ERRINIT 5ul
+#define CRISPR_ERRRANGE 6ul
+#define CRISPR_ERRDOMAIN 7ul
+#define CRISPR_ERRFAULT 8ul
+#define CRISPR_ERRBADPTR 9ul
+#define CRISPR_ERRTYPE 10ul
+#define CRISPR_ERRCONV 11ul
+#define CRISPR_ERRATTR 12ul
+#define CRISPR_ERREMPTY 13ul
+#define CRISPR_ERRINTR 14ul
+#define CRISPR_ERRTIMEDOUT 15ul
+#define CRISPR_ERRSTALE 16ul
+#define CRISPR_ERRDEAD 17ul
+#define CRISPR_ERRACCESS 18ul
+#define CRISPR_ERRAGAIN 19ul
 
-#ifdef __GNUC__
- #pragma GCC poison _Crispr_tn_Errno
-#endif
-
-DLL_PUBLIC const char* Crispr_f_Errno(Crispr_tn_Errno);
+DLL_PUBLIC const char* Crispr_errno(Crispr_Errno);
 
 DLL_RESTORE
