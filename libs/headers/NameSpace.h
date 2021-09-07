@@ -1,7 +1,15 @@
 #pragma once
-#include "Status.h"
+#include "predefs.h"
 
-DLL_PUBLIC Crispr_Errno Crispr_enter_Namespace(const char* restrict);
-DLL_PUBLIC Crispr_Errno Crispr_exit_Namespace();
+DLL_HIDE
 
-DLL_PUBLIC Crispr_Errno Crispr_use_Namespace(const char* restrict);
+typedef struct {
+	const Crispr_NameSpace* ns;
+	Crispr_SemSched lock;
+} Crispr_NsRef;
+
+Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef* parent);
+
+bool Crispr_nsGet(Crispr_NsRef* restrict dest, const char* restrict name);
+
+DLL_RESTORE
