@@ -1,5 +1,5 @@
 #pragma once
-#include "predefs.h"
+#include "Sema.h"
 
 DLL_HIDE
 
@@ -8,8 +8,9 @@ typedef struct {
 	Crispr_SemSched lock;
 } Crispr_NsRef;
 
-Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef* parent);
-
-bool Crispr_nsGet(Crispr_NsRef* restrict dest, const char* restrict name);
+Crispr_NameSpace* Crispr_nsCreate(const char* restrict name,
+		const Crispr_NsRef* parent, Crispr_Errno* restrict);
+bool Crispr_nsGet(Crispr_NsRef* restrict dest, const Crispr_NsRef* src,
+		const char* restrict name, Crispr_Errno* restrict);
 
 DLL_RESTORE

@@ -19,7 +19,7 @@ struct _Crispr_SemSched {
 struct _Crispr_Sema {
 	volatile _Atomic char status; //keep track of semaphore status
 	Crispr_Ulong limit; //limit of semaphore (0 if plain mutex)
-	volatile _Atomic Crispr_Uint threads; //amount of threads using this mutex
+	volatile Crispr_Uint threads; //amount of threads using this mutex
 	mtx_t access; //access aquisition mutex
 	union {
 		struct { //semaphore specific values

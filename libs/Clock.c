@@ -6,7 +6,7 @@
 #endif
 DLL_HIDE
 
-static bool crispr_f_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
+static bool crispr_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
 #ifdef DLL_OS_unix
@@ -28,7 +28,7 @@ static bool crispr_f_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict 
 	return true;
 }
 
-static bool crispr_f_clock_utc(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
+static bool crispr_clock_utc(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
 	struct timespec present;
@@ -43,13 +43,13 @@ static bool crispr_f_clock_utc(Crispr_S64* restrict res, Crispr_Errno* restrict 
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_ABS = {
 	"CLK_ABS: Accurate timestamp with implementation-defined epoch.",
-	&crispr_f_clock_tai,
+	&crispr_clock_tai,
 	{ 0, CRISPR_NULL, },
 };
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_UTC = {
 	"CLK_UTC: Clock holding time adjusted from UTC epoch",
-	&crispr_f_clock_utc,
+	&crispr_clock_utc,
 	{ 0, CRISPR_NULL, },
 };
 
