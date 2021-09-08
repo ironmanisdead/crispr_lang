@@ -14,10 +14,12 @@ DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 			return "Memory allocation failed.";
 		case CRISPR_ERRINIT:
 			return "Error in initialization.";
-		case CRISPR_ERRRANGE:
-			return "Parameter out of range.";
+		case CRISPR_ERRINDEX:
+			return "Number does not represent valid index in object.";
 		case CRISPR_ERRDOMAIN:
 			return "Parameter outside mathematical domain.";
+		case CRISPR_ERRRANGE:
+			return "Mathematical overflow during operation.";
 		case CRISPR_ERRFAULT:
 			return "Memory fault in userspace.";
 		case CRISPR_ERRBADPTR:
@@ -29,7 +31,9 @@ DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 		case CRISPR_ERRATTR:
 			return "Type/data attribute missing, or incorrect.";
 		case CRISPR_ERREMPTY:
-			return "Object is empty.";
+			return "Object is empty, when the operation requires a non-empty object.";
+		case CRISPR_ERRNOEMPTY:
+			return "Object is not empty, when then operation requires an empty object.";
 		case CRISPR_ERRINTR:
 			return "Interrupted action.";
 		case CRISPR_ERRTIMEDOUT:
@@ -40,6 +44,8 @@ DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 			return "Reference became unusable mid-operation";
 		case CRISPR_ERRACCESS:
 			return "Access denied.";
+		case CRISPR_ERRPERM:
+			return "Operation did not have high enough permissions.";
 		case CRISPR_ERRAGAIN:
 			return "Operation could not be preformed at this time.";
 		case CRISPR_ERRUNKNOWN:
