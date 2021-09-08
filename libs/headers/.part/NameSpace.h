@@ -4,7 +4,8 @@
 DLL_HIDE
 
 struct _Crispr_NameSpace {
-	mtx_t access;
+	mtx_t modify;
+	Crispr_Sema users;
 	Crispr_NsRef*** refs;
 	char name[];
 };
