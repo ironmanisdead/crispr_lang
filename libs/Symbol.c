@@ -25,7 +25,8 @@ DLL_PUBLIC bool Crispr_symLen(Crispr_Size* restrict res, const char* restrict sy
 	}
 	Crispr_Size idx;
 	for (idx = 1; (ch = sym[idx]) != '\0'; idx++) {
-		if (((ch < 'A') || (ch > 'Z')) && ((ch < 'a') || (ch > 'z')) && (ch != '_')) {
+		if (((ch < 'A') || (ch > 'Z')) && ((ch < 'a') || (ch > 'z')) &&
+				((ch < '0') || (ch > '9')) && (ch != '_')) {
 			if (err)
 				*err = CRISPR_ERRSYMBOL;
 			return false;
