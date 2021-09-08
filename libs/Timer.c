@@ -89,9 +89,9 @@ DLL_PUBLIC Crispr_Compare Crispr_timeCmp(const Crispr_Timer* restrict p1,
 		const Crispr_Timer* restrict p2, Crispr_Errno* restrict err) {
 	Crispr_Timer t1;
 	Crispr_Timer t2;
-	if (!Crispr_timeConv(&t1, p1, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
+	if (!Crispr_timeConv(&t1, p1, p1->clock, CRISPR_TIME_NANOSECOND, err))
 		return CRISPR_CMP_NQ;
-	if (!Crispr_timeConv(&t2, p2, CRISPR_CLK_ABS, CRISPR_TIME_NANOSECOND, err))
+	if (!Crispr_timeConv(&t2, p2, p1->clock, CRISPR_TIME_NANOSECOND, err))
 		return CRISPR_CMP_NQ;
 	if (t1.rawval == t2.rawval)
 		return CRISPR_CMP_EQ;
