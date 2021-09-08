@@ -187,7 +187,7 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 			mtx_unlock(&target->access);
 			if ((load & CRISPR_SEMA_TERM) && (target->threads < 2)) {
 				mtx_destroy(&target->access);
-				crispr_sema_statrel(target, CRISPR_SEMA_DEAD);
+				load = CRISPR_SEMA_DEAD;
 			} else if (load & CRISPR_SEMA_KILL) {
 				--target->threads;
 				crispr_sema_statrel(target, load);
