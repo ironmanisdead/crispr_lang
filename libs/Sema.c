@@ -335,7 +335,7 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 	if (err)
 		*err = CRISPR_ERRNOERR;
 	char lock = crispr_sema_statlock(src);
-	if (lock & (CRISPR_SEMA_TERM | CRISPR_SEMA_KILL | CRISPR_SEMA_IDLE)) {
+	if (lock & (CRISPR_SEMA_TERM | CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
 		crispr_sema_statrel(src, lock);
 		if (err)
 			*err = CRISPR_ERRSTALE;
@@ -346,8 +346,29 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 		(void)count;
 		assert(count < UINT_MAX);
 	}
-	crispr_sema_statrel(src, lock);
+	if (term)
+		lock = CRISPR_SEMA_TERM;
+	Crispr_SemSched** latest = crispr_sema_latest(src);
+	int i = cnd_init(&dest->lock);
+	if (i == thrd_error) {
+		--src->threads;
+		crispr_sema_statrel(src, lock);
+		if (err)
+			*err = CRISPR_ERRUNKNOWN;
+		return false;
+	} else if (i == thrd_nomem) {
+		--src->threads;
+		crispr_sema_statrel(src, lock);
+		if (err)
+			*err = CRISPR_ERRNOMEM;
+		return false;
+	}
+	atomic_init(&dest->parent, src);
+	dest->next = CRISPR_NULL;
+	dest->prev = latest;
+	*latest = dest;
 	--src->threads;
+	crispr_sema_statrel(src, CRISPR_SEMA_TERM);
 	return true;
 }
 

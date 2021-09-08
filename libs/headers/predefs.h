@@ -25,7 +25,7 @@ typedef unsigned long Crispr_Ulong;
 typedef long long Crispr_S64;
 typedef unsigned long long Crispr_U64;
 typedef struct _Crispr_State Crispr_State;
-typedef struct _Crispr_Namespace Crispr_Namespace;
+typedef struct _Crispr_NameSpace Crispr_NameSpace;
 typedef struct _Crispr_Class Crispr_Class;
 typedef struct _Crispr_Object Crispr_Object;
 typedef struct _Crispr_Method Crispr_Method;
