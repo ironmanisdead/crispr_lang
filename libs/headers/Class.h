@@ -33,14 +33,13 @@ struct _Crispr_Class {
 #endif
 
 typedef struct {
-	Crispr_Class base;
-	struct {
-		Crispr_ClsRefLck* refs;
-		Crispr_ClsBaseNode* bases;
-	} setup;
+	Crispr_Class main;
+	Crispr_ClsRefLck* refs;
+	Crispr_ClsBaseNode* bases;
+	const char* restrict name;
 } Crispr_ProtoClass;
 
-DLL_PUBLIC bool Crispr_protoClass(Crispr_Class* restrict dst, const char* restrict name, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_protoClass(Crispr_ProtoClass* restrict dst, const char* restrict name, Crispr_Errno* restrict err);
 
 DLL_PUBLIC const Crispr_Class* Crispr_newClass(const char* restrict name, Crispr_Errno* restrict);
 
