@@ -23,7 +23,7 @@ DLL_HIDE
 #define CRISPR_ERRTIMEDOUT 18ul //Operation timed out.
 #define CRISPR_ERRSTALE 19ul //Object is already been used up.
 #define CRISPR_ERRDEAD 20ul //Object died during operation.
-#define CRISPR_ERRACCESS 21ul //Object was inaccessible.
+#define CRISPR_ERRACCESS 21ul //Operation could not be preformed.
 #define CRISPR_ERRPERM 22ul //Operation does not have high enough permissions.
 #define CRISPR_ERRAGAIN 23ul //Operation could not be preformed at this time.
 

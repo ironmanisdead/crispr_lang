@@ -8,6 +8,8 @@ DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 			return "Success.";
 		case CRISPR_ERRINVAL:
 			return "Invalid parameters.";
+		case CRISPR_ERRSYMBOL:
+			return "Error in converting string to valid symbol";
 		case CRISPR_ERRNULL:
 			return "Null pointer error.";
 		case CRISPR_ERRNOMEM:
@@ -43,7 +45,7 @@ DLL_PUBLIC const char* Crispr_errno(Crispr_Errno stat) {
 		case CRISPR_ERRDEAD:
 			return "Reference became unusable mid-operation";
 		case CRISPR_ERRACCESS:
-			return "Access denied.";
+			return "Operation cannot be preformed by program.";
 		case CRISPR_ERRPERM:
 			return "Operation did not have high enough permissions.";
 		case CRISPR_ERRAGAIN:

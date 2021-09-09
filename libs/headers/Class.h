@@ -40,7 +40,9 @@ typedef struct {
 } Crispr_ProtoClass;
 
 DLL_PUBLIC bool Crispr_protoClass(Crispr_ProtoClass* restrict dst, const char* restrict name, Crispr_Errno* restrict err);
+DLL_PUBLIC void Crispr_protoSetFinal(Crispr_ProtoClass* restrict target);
+DLL_PUBLIC void Crispr_protoSetAlign(Crispr_ProtoClass* restrict target, Crispr_Size len);
 
-DLL_PUBLIC const Crispr_Class* Crispr_newClass(const char* restrict name, Crispr_Errno* restrict);
+DLL_PUBLIC Crispr_Class* Crispr_newClass(Crispr_ProtoClass* restrict src, Crispr_Errno* restrict);
 
 DLL_RESTORE
