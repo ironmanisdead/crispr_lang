@@ -103,7 +103,9 @@ static char crispr_sema_time(struct timespec* restrict dest, const Crispr_Timer*
 			return 2;
 		} else {
 			Crispr_Timer time;
-			assert(Crispr_timeConv(&time, src, CRISPR_CLK_UTC, CRISPR_TIME_NANOSECOND, CRISPR_NULL));
+			bool stat = Crispr_timeConv(&time, src, CRISPR_CLK_UTC, CRISPR_TIME_NANOSECOND, CRISPR_NULL);
+			(void)stat;
+			assert(stat);
 			dest->tv_sec = time.computed / CRISPR_TIME_SECOND;
 			dest->tv_nsec = time.computed % CRISPR_TIME_SECOND;
 			return 1;

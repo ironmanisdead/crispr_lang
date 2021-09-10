@@ -25,40 +25,54 @@ DLL_LOCAL void crispr_meminit() {
 	if (done)
 		return;
 	done = true;
-	assert(mtx_init(&crispr_memmutex, mtx_plain) == thrd_success);
-	assert(atexit(&memunload) == 0);
+	int stat = mtx_init(&crispr_memmutex, mtx_plain);
+	(void)stat;
+	assert(stat == thrd_success);
+	stat = atexit(&memunload);
+	(void)stat;
+	assert(stat == 0);
 }
 
 DLL_PUBLIC void* Crispr_malloc(Crispr_Size size) {
 	crispr_meminit();
-	assert(mtx_lock(&crispr_memmutex) == thrd_success);
+	int stat = mtx_lock(&crispr_memmutex);
+	(void)stat;
+	assert(stat == thrd_success);
 	void* mem = malloc(size);
 	mtx_unlock(&crispr_memmutex);
 	return mem;
 }
 
 DLL_PUBLIC void Crispr_free(void* restrict ptr) {
-	assert(mtx_lock(&crispr_memmutex) == thrd_success);
+	int stat = mtx_lock(&crispr_memmutex);
+	(void)stat;
+	assert(stat == thrd_success);
 	free(ptr);
 	mtx_unlock(&crispr_memmutex);
 }
 
 DLL_PUBLIC void* Crispr_realloc(void* restrict ptr, Crispr_Size size) {
-	assert(mtx_lock(&crispr_memmutex) == thrd_success);
+	int stat = mtx_lock(&crispr_memmutex);
+	(void)stat;
+	assert(stat == thrd_success);
 	void* mem = realloc(ptr, size);
 	mtx_unlock(&crispr_memmutex);
 	return mem;
 }
 
 DLL_PUBLIC void* Crispr_memcpy(void* restrict dest, const void* restrict src, Crispr_Size size) {
-	assert(mtx_lock(&crispr_memmutex) == thrd_success);
+	int stat = mtx_lock(&crispr_memmutex);
+	(void)stat;
+	assert(stat == thrd_success);
 	void* mem = memcpy(dest, src, size);
 	mtx_unlock(&crispr_memmutex);
 	return mem;
 }
 
 DLL_PUBLIC void* Crispr_memmove(void* dest, const void* src, Crispr_Size size) {
-	assert(mtx_lock(&crispr_memmutex) == thrd_success);
+	int stat = mtx_lock(&crispr_memmutex);
+	(void)stat;
+	assert(stat == thrd_success);
 	void* mem = memmove(dest, src, size);
 	mtx_unlock(&crispr_memmutex);
 	return mem;
