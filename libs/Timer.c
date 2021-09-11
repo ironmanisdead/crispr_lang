@@ -10,8 +10,8 @@ DLL_PUBLIC bool Crispr_timeNow(Crispr_Timer* restrict dest, const Crispr_Clock* 
 		Crispr_S64 offset, Crispr_U64 scale, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
-	if (clock == CRISPR_CLK_RELA) {
-		dest->clock = CRISPR_CLK_RELA;
+	if (clock->now == CRISPR_NULL) {
+		dest->clock = clock;
 		dest->rawval = offset * scale;
 		dest->computed = offset;
 		dest->scale = scale;
@@ -51,13 +51,18 @@ DLL_PUBLIC bool Crispr_timeConv(Crispr_Timer* restrict dest, const Crispr_Timer*
 		dest->computed = dest->rawval / scale;
 		return true;
 	}
-	if (src->clock == CRISPR_CLK_RELA) {
+	if (clock->type != src->clock->type) {
+		if (err)
+			*err = CRISPR_ERRCONV;
+		return false;
+	}
+	if (src->clock->now == CRISPR_NULL) {
 		if (!clock->now(&dest->rawval, err))
 			return false;
 		dest->rawval += src->rawval;
 		if (!Crispr_patternApply(&dest->computed, dest->rawval, &clock->pattern, err))
 			return false;
-	} else if (clock == CRISPR_CLK_RELA) {
+	} else if (clock->now == CRISPR_NULL) {
 		Crispr_S64 abstime;
 		if (!src->clock->now(&abstime, err))
 			return false;

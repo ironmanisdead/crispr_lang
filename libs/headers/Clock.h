@@ -4,22 +4,40 @@
 
 DLL_HIDE
 
+typedef struct _Crispr_TimeType Crispr_TimeType;
+
 typedef struct {
 	const char* timename;
 	bool (*now)(Crispr_S64* restrict res, Crispr_Errno* restrict err);
 	Crispr_Pattern pattern;
+	const Crispr_TimeType* type; //what type of clock is this convertable to (e.g. constant time, CPU time, etc)
 } Crispr_Clock;
 
+DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_RELA;
 DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_ABS;
 DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_UTC;
 
-#define CRISPR_CLK_RELA ((const Crispr_Clock*)0)
+DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_CPU0;
+DLL_PUBLIC extern const Crispr_Clock _Crispr_cn_CLK_CPU1;
+
+DLL_PUBLIC extern const Crispr_TimeType _Crispr_cn_TMTYP_REAL;
+DLL_PUBLIC extern const Crispr_TimeType _Crispr_cn_TMTYP_CPU;
+
+#define CRISPR_CLK_RELA &_Crispr_cn_CLK_RELA
 #define CRISPR_CLK_ABS &_Crispr_cn_CLK_ABS
 #define CRISPR_CLK_UTC &_Crispr_cn_CLK_UTC
+#define CRISPR_TMTYP_REAL &_Crispr_cn_TMTYP_REAL
+#define CRISPR_TMTYP_CPU0 &_Crispr_cn_TMTYP_CPU0
+#define CRISPR_TMTYP_CPU1 &_Crispr_cn_TMTYP_CPU1
 
 #if (defined __GNUC__) && ! (defined DLL_EXPORT_LIB_crispr_api)
+ #pragma GCC poison _Crispr_TimeType
  #pragma GCC poison _Crispr_cn_CLK_ABS
  #pragma GCC poison _Crispr_cn_CLK_UTC
+ #pragma GCC poison _Crispr_cn_CLK_CPU0
+ #pragma GCC poison _Crispr_cn_CLK_CPU1
+ #pragma GCC poison _Crispr_cn_TMTYPE_REAL
+ #pragma GCC poison _Crispr_cn_TMTYPE_CPU
 #endif
 
 #define CRISPR_TIME_NANOSECOND 1LL
