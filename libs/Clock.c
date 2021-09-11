@@ -52,8 +52,21 @@ static bool crispr_clock_utc(Crispr_S64* restrict res, Crispr_Errno* restrict er
 	return true;
 }
 
+static bool crispr_clock_cpu(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
+	if (err)
+		*err = CRISPR_ERRNOERR;
+	clock_t val = clock();
+	if (val == -1) {
+		if (err)
+			*err = CRISPR_ERRNOERR;
+		return false;
+	}
+	*res = (((Crispr_S64)val) * CRISPR_TIME_SECOND) / CLOCKS_PER_SEC;
+	return true;
+}
+
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_RELA = {
-	"CLK_RELA: Timestamp measuring distance from present",
+	"CLK_RELA: Timestamp measuring temporal difference..",
 	CRISPR_NULL,
 	{ 0, CRISPR_NULL, },
 	CRISPR_TMTYP_REAL,
@@ -71,6 +84,20 @@ DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_UTC = {
 	&crispr_clock_utc,
 	{ 0, CRISPR_NULL, },
 	CRISPR_TMTYP_REAL,
+};
+
+DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_CPU0 = {
+	"CLK_CPU0 measures difference between cpu times.",
+	CRISPR_NULL,
+	{ 0, CRISPR_NULL, },
+	CRISPR_TMTYP_CPU,
+};
+
+DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_CPU1 = {
+	"CLK_CPU0 measures difference between cpu times.",
+	&crispr_clock_cpu,
+	{ 0, CRISPR_NULL, },
+	CRISPR_TMTYP_CPU,
 };
 
 DLL_RESTORE

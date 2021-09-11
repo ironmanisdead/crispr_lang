@@ -26,9 +26,10 @@ DLL_PUBLIC extern const Crispr_TimeType _Crispr_cn_TMTYP_CPU;
 #define CRISPR_CLK_RELA &_Crispr_cn_CLK_RELA
 #define CRISPR_CLK_ABS &_Crispr_cn_CLK_ABS
 #define CRISPR_CLK_UTC &_Crispr_cn_CLK_UTC
+#define CRISPR_CLK_CPU0 &_Crispr_cn_CLK_CPU0
+#define CRISPR_CLK_CPU1 &_Crispr_cn_CLK_CPU1
 #define CRISPR_TMTYP_REAL &_Crispr_cn_TMTYP_REAL
-#define CRISPR_TMTYP_CPU0 &_Crispr_cn_TMTYP_CPU0
-#define CRISPR_TMTYP_CPU1 &_Crispr_cn_TMTYP_CPU1
+#define CRISPR_TMTYP_CPU &_Crispr_cn_TMTYP_CPU
 
 #if (defined __GNUC__) && ! (defined DLL_EXPORT_LIB_crispr_api)
  #pragma GCC poison _Crispr_TimeType
