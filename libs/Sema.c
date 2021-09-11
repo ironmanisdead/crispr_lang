@@ -97,21 +97,24 @@ static Crispr_SemSched** crispr_sema_latest(Crispr_Sema* target) {
 	return latest;
 }
 
-static char crispr_sema_time(struct timespec* restrict dest, const Crispr_Timer* restrict src) {
+static bool crispr_sema_time(char* restrict pres, struct timespec* restrict dest,
+		const Crispr_Timer* restrict src, Crispr_Errno* restrict err) {
 	if (src) {
 		if ((src->clock == CRISPR_CLK_RELA) && (src->computed == 0)) {
-			return 2;
+			*pres = 2;
+			return true;
 		} else {
 			Crispr_Timer time;
-			bool stat = Crispr_timeConv(&time, src, CRISPR_CLK_UTC, CRISPR_TIME_NANOSECOND, CRISPR_NULL);
-			(void)stat;
-			assert(stat);
+			if (!Crispr_timeConv(&time, src, CRISPR_CLK_UTC, CRISPR_TIME_NANOSECOND, err))
+				return false;
 			dest->tv_sec = time.computed / CRISPR_TIME_SECOND;
 			dest->tv_nsec = time.computed % CRISPR_TIME_SECOND;
-			return 1;
+			*pres = 1;
+			return true;
 		}
 	} else {
-		return 0;
+		*pres = 0;
+		return true;
 	}
 }
 
@@ -137,7 +140,9 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 		crispr_sema_statrel(target, CRISPR_SEMA_IDLE);
 	}
 	struct timespec timeconv;
-	char present = crispr_sema_time(&timeconv, wait);
+	char present;
+	if (!crispr_sema_time(&present, &timeconv, wait, err))
+		return false;
 	{
 		int stat = mtx_lock(&target->access);
 		(void)stat;
