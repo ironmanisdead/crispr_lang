@@ -20,7 +20,7 @@ int main() {
 	Crispr_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
 	Crispr_Errno err;
 	Crispr_sema_destroy(&mutex, &err);
-	printf("Status: %s\n", Crispr_errno(err));
+	printf("Status: %s\n", Crispr_errname(err));
 	printf("Sema size: %zd\n", sizeof(Crispr_Sema));
 	printf("SemSched size: %zd\n", sizeof(Crispr_SemSched));
 	printf("Timer size: %zd\n", sizeof(Crispr_Timer));

@@ -12,8 +12,10 @@ struct _Crispr_Error {
 #endif
 
 extern const Crispr_Error _Crispr_cn_ERRSYS;
+extern const Crispr_Error _Crispr_cn_ERRRESOURCE;
 extern const Crispr_Error _Crispr_cn_ERRINVAL;
 extern const Crispr_Error _Crispr_cn_ERRSYMBOL;
+extern const Crispr_Error _Crispr_cn_ERRBADPTR;
 extern const Crispr_Error _Crispr_cn_ERRNULL;
 extern const Crispr_Error _Crispr_cn_ERRNOMEM;
 extern const Crispr_Error _Crispr_cn_ERROBJECT;
@@ -23,7 +25,6 @@ extern const Crispr_Error _Crispr_cn_ERRMATH;
 extern const Crispr_Error _Crispr_cn_ERRDOMAIN;
 extern const Crispr_Error _Crispr_cn_ERRRANGE;
 extern const Crispr_Error _Crispr_cn_ERRFAULT;
-extern const Crispr_Error _Crispr_cn_ERRBADPTR;
 extern const Crispr_Error _Crispr_cn_ERRTYPE;
 extern const Crispr_Error _Crispr_cn_ERRCONV;
 extern const Crispr_Error _Crispr_cn_ERRATTR;
@@ -38,18 +39,20 @@ extern const Crispr_Error _Crispr_cn_ERRPERM;
 extern const Crispr_Error _Crispr_cn_ERRAGAIN;
 
 #define CRISPR_ERRNOERR ((Crispr_Errno)0) //No error.
-#define CRISPR_ERRSYS &_Crispr_cn_ERRSYS //Unknown system error.
+#define CRISPR_ERRSYS &_Crispr_cn_ERRSYS //System error.
+#define CRISPR_ERRRESOURCE &_Crispr_cn_ERRRESOURCE //System resource error.
 #define CRISPR_ERRINVAL &_Crispr_cn_ERRINVAL //Invalid parameter passed to function.
 #define CRISPR_ERRSYMBOL &_Crispr_cn_ERRSYMBOL //Invalid name for a variable
-#define CRISPR_ERRNULL &_Crispr_cn_ERRNULL //Null parameter not expected in function.
+#define CRISPR_ERRBADPTR &_Crispr_cn_ERRBADPTR //Invalid pointer was not expected in operation.
+#define CRISPR_ERRNULL &_Crispr_cn_ERRNULL //Null parameter was not expected in function.
+#define CRISPR_ERRFAULT &_Crispr_cn_ERRFAULT //Segmentation fault in userspace.
 #define CRISPR_ERRNOMEM &_Crispr_cn_ERRNOMEM //No more memory available for operation.
-#define CRISPR_ERROBJECT &_Crispr_cn_ERROBJECT //Object error
+#define CRISPR_ERROBJECT &_Crispr_cn_ERROBJECT //Object error.
 #define CRISPR_ERRINIT &_Crispr_cn_ERRINIT //Object initialization failed.
 #define CRISPR_ERRINDEX &_Crispr_cn_ERRINDEX //Parameter describes index that does not occur in object.
+#define CRISPR_ERRMATH &_Crispr_cn_ERRMATH //Mathematical error.
 #define CRISPR_ERRDOMAIN &_Crispr_cn_ERRDOMAIN //Parameter outside mathematical domain.
 #define CRISPR_ERRRANGE &_Crispr_cn_ERRRANGE //Result cannot be represented due to overflow.
-#define CRISPR_ERRFAULT &_Crispr_cn_ERRFAULT //Segmentation fault in userspace.
-#define CRISPR_ERRBADPTR &_Crispr_cn_ERRBADPTR //API did not recognize pointer.
 #define CRISPR_ERRTYPE &_Crispr_cn_ERRTYPE //Unknown type error.
 #define CRISPR_ERRCONV &_Crispr_cn_ERRCONV //Type conversion error.
 #define CRISPR_ERRATTR &_Crispr_cn_ERRATTR //Type attribute missing or inappropriate for operation.
