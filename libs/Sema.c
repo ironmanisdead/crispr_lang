@@ -1,7 +1,7 @@
 #include "headers/Sema.h"
 #include "headers/.part/Sema.h"
 #include "headers/Memory.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include <stdatomic.h>
 #include <limits.h>
 #include <assert.h>
@@ -15,7 +15,7 @@ DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limi
 	target->threads = 0;
 	if (mtx_init(&target->access, mtx_plain) == thrd_error) {
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return false;
 	}
 	if (limit > 0) {
@@ -30,7 +30,7 @@ DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limi
 		if (i == thrd_error) {
 			mtx_destroy(&target->access);
 			if (err)
-				*err = CRISPR_ERRUNKNOWN;
+				*err = CRISPR_ERRSYS;
 			return false;
 		} else if (i == thrd_nomem) {
 			mtx_destroy(&target->access);
@@ -165,7 +165,7 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 			mtx_unlock(&target->access);
 			--target->threads;
 			if (err)
-				*err = CRISPR_ERRUNKNOWN;
+				*err = CRISPR_ERRSYS;
 			return false;
 		} else if (i == thrd_nomem) {
 			mtx_unlock(&target->access);
@@ -361,7 +361,7 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 		--src->threads;
 		crispr_sema_statrel(src, lock);
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return false;
 	} else if (i == thrd_nomem) {
 		--src->threads;

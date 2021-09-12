@@ -1,7 +1,7 @@
 #include "headers/Lock.h"
 #include "headers/.part/Lock.h"
 #include "headers/Memory.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include <threads.h>
 #include <stdatomic.h>
 #include <assert.h>

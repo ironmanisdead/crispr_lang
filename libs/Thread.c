@@ -1,6 +1,6 @@
 #include "headers/Thread.h"
 #include "headers/Stack.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include "headers/Memory.h"
 #include "headers/Sema.h"
 #include <stdatomic.h>
@@ -59,7 +59,7 @@ DLL_PUBLIC bool Crispr_thread_init(Crispr_Thread* restrict dest,
 				*stat = CRISPR_ERRNOMEM;
 			return false;
 	}
-	*stat = CRISPR_ERRUNKNOWN;
+	*stat = CRISPR_ERRSYS;
 	return false;
 }
 

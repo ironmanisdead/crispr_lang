@@ -1,5 +1,5 @@
 #include "headers/Class.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 
 DLL_HIDE
 

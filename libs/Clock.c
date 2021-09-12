@@ -1,5 +1,5 @@
 #include "headers/Clock.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include "headers/.part/Clock.h"
 #include <time.h>
 #ifdef DLL_OS_windows
@@ -24,14 +24,14 @@ static bool crispr_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict er
 	struct timespec present;
 	if (clock_gettime(CLOCK_BOOTTIME, &present) != 0) {
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return false;
 	}
 	*res = (present.tv_sec * CRISPR_TIME_SECOND) + present.tv_nsec;
 #elif defined DLL_OS_windows
 	if (!QueryUnbiasedInterruptTime(res)) {
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return false;
 	}
 	*res *= 100;
@@ -45,7 +45,7 @@ static bool crispr_clock_utc(Crispr_S64* restrict res, Crispr_Errno* restrict er
 	struct timespec present;
 	if (timespec_get(&present, TIME_UTC) != TIME_UTC) {
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return false;
 	}
 	*res = (present.tv_sec * CRISPR_TIME_SECOND) + present.tv_nsec;

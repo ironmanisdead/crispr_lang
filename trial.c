@@ -1,7 +1,7 @@
 #include <CrisprLang/Memory.h>
 #include <CrisprLang/Timer.h>
 #include <CrisprLang/Sema.h>
-#include <CrisprLang/Errno.h>
+#include <CrisprLang/Error.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

@@ -1,5 +1,5 @@
 #include "headers/Timer.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include <time.h>
 #ifdef DLL_OS_WINDOWS
  #include <realtimeapiset.h>

@@ -1,5 +1,5 @@
 #include "headers/Symbol.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 
 DLL_HIDE
 

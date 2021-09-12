@@ -1,5 +1,5 @@
 #include "headers/.part/NameSpace.h"
-#include "headers/Errno.h"
+#include "headers/Error.h"
 #include "headers/Memory.h"
 #include "headers/Symbol.h"
 
@@ -20,7 +20,7 @@ Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef*
 	int status = mtx_init(&result->modify, mtx_plain);
 	if (status == thrd_error) {
 		if (err)
-			*err = CRISPR_ERRUNKNOWN;
+			*err = CRISPR_ERRSYS;
 		return CRISPR_NULL;
 	}
 	if (!Crispr_sema_init(&result->users, 1, err)) {

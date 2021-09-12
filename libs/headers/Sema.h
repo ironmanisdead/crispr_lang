@@ -40,12 +40,13 @@ struct _Crispr_Sema {
 //	Conversly the rest of the Crispr_sema_* functions should never be called on an unconstructed mutex,
 //as undefined behavior will result as well.
 DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict dest, Crispr_Ulong limit, Crispr_Errno* restrict err);
-DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict stat);
-DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* src, bool term, const Crispr_Timer* restrict wait, Crispr_Errno* restrict stat);
+DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* src, bool term, const Crispr_Timer* restrict wait, Crispr_Errno* restrict err);
 DLL_PUBLIC bool Crispr_sema_unlock(Crispr_Sema* target, Crispr_Errno* restrict stat);
-DLL_PUBLIC bool Crispr_sema_reset(Crispr_Sema* target, Crispr_Ulong limit);
-DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sema* src, bool term, Crispr_Errno* restrict stat);
-DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* restrict stat);
-DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Timer* restrict wait, Crispr_Errno* restrict stat);
+DLL_PUBLIC bool Crispr_sema_reset(Crispr_Sema* target, Crispr_Ulong limit, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_sema_reinit(Crispr_Sema* target, Crispr_Ulong limit, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sema* src, bool term, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Timer* restrict wait, Crispr_Errno* restrict err);
 
 DLL_RESTORE
