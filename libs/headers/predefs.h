@@ -33,6 +33,7 @@ typedef struct _Crispr_Bindings Crispr_Bindings;
 typedef struct _Crispr_Field Crispr_Field;
 typedef struct _Crispr_Error Crispr_Error;
 typedef const Crispr_Error* restrict Crispr_Errno;
+#define Crispr_boolStr(exp) (exp ? "true" : "false")
 #define CRISPR_NULL (void*)(0)
 #pragma push_macro("DLL_EXPORTED")
 #define DLL_EXPORTED DLL_EXPORT_LIB_crispr_api
