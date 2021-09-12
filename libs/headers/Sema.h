@@ -13,7 +13,7 @@ struct _Crispr_SemSched {
 	Crispr_Sema* volatile _Atomic parent; //schedbusy if being used, and NULL if unusable
 	Crispr_SemSched* next; //pointer to next lock
 	Crispr_SemSched** prev; //pointer to pointer from previous semsched
-	cnd_t stcklock; //lock to this scheduler
+	cnd_t lock; //lock to this scheduler
 };
 
 struct _Crispr_Sema {
