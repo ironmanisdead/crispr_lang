@@ -77,6 +77,8 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 		return true;
 	if ((err && true) != (cmp && true))
 		return false;
+	if (err->bases == CRISPR_NULL)
+		return false;
 	for (const Crispr_Errno* restrict item = err->bases; *item != CRISPR_NULL; item++) {
 		if ((*item == cmp) || Crispr_errIsA(err, *item))
 			return true;
