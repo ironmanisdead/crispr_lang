@@ -11,32 +11,32 @@ struct _Crispr_Error {
  #pragma GCC poison _Crispr_Error
 #endif
 
-extern const Crispr_Error _Crispr_cn_ERRSYS;
-extern const Crispr_Error _Crispr_cn_ERRRESOURCE;
-extern const Crispr_Error _Crispr_cn_ERRINVAL;
-extern const Crispr_Error _Crispr_cn_ERRSYMBOL;
-extern const Crispr_Error _Crispr_cn_ERRBADPTR;
-extern const Crispr_Error _Crispr_cn_ERRNULL;
-extern const Crispr_Error _Crispr_cn_ERRNOMEM;
-extern const Crispr_Error _Crispr_cn_ERROBJECT;
-extern const Crispr_Error _Crispr_cn_ERRINIT;
-extern const Crispr_Error _Crispr_cn_ERRINDEX;
-extern const Crispr_Error _Crispr_cn_ERRMATH;
-extern const Crispr_Error _Crispr_cn_ERRDOMAIN;
-extern const Crispr_Error _Crispr_cn_ERRRANGE;
-extern const Crispr_Error _Crispr_cn_ERRFAULT;
-extern const Crispr_Error _Crispr_cn_ERRTYPE;
-extern const Crispr_Error _Crispr_cn_ERRCONV;
-extern const Crispr_Error _Crispr_cn_ERRATTR;
-extern const Crispr_Error _Crispr_cn_ERREMPTY;
-extern const Crispr_Error _Crispr_cn_ERRNOEMPTY;
-extern const Crispr_Error _Crispr_cn_ERRINTR;
-extern const Crispr_Error _Crispr_cn_ERRTIMEDOUT;
-extern const Crispr_Error _Crispr_cn_ERRSTALE;
-extern const Crispr_Error _Crispr_cn_ERRDEAD;
-extern const Crispr_Error _Crispr_cn_ERRACCESS;
-extern const Crispr_Error _Crispr_cn_ERRPERM;
-extern const Crispr_Error _Crispr_cn_ERRAGAIN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYS;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRESOURCE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINVAL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYMBOL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRBADPTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNULL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNOMEM;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERROBJECT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINIT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINDEX;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRMATH;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRDOMAIN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRANGE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRFAULT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRTYPE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRCONV;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRATTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERREMPTY;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNOEMPTY;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRTIMEDOUT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSTALE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRDEAD;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRACCESS;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRPERM;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRAGAIN;
 
 #define CRISPR_ERRNOERR ((Crispr_Errno)0) //No error.
 #define CRISPR_ERRSYS &_Crispr_cn_ERRSYS //System error.
@@ -66,7 +66,10 @@ extern const Crispr_Error _Crispr_cn_ERRAGAIN;
 #define CRISPR_ERRPERM &_Crispr_cn_ERRPERM //Operation does not have high enough permissions.
 #define CRISPR_ERRAGAIN &_Crispr_cn_ERRAGAIN //Operation could not be preformed at this time.
 
-DLL_PUBLIC const char* Crispr_errname(Crispr_Errno);
-DLL_PUBLIC const char* Crispr_errdesc(Crispr_Errno);
+DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err);
+DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err);
+
+DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err);
+DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp);
 
 DLL_RESTORE

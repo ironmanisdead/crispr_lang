@@ -2,9 +2,9 @@
 
 DLL_HIDE
 
-#define CRISPR_MAKEERRTYPE(name, info) const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, CRISPR_NULL }
+#define CRISPR_MAKEERRTYPE(name, info) DLL_PUBLIC const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, CRISPR_NULL }
 #define CRISPR_MAKEERRBASE(name, ...) static const Crispr_Errno crispr_errbase_##name[] = { __VA_ARGS__, CRISPR_NULL }
-#define CRISPR_MAKEERRFULL(name, info, base) const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, crispr_errbase_##base }
+#define CRISPR_MAKEERRFULL(name, info, base) DLL_PUBLIC const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, crispr_errbase_##base }
 
 CRISPR_MAKEERRTYPE(SYS, "System error.");
 CRISPR_MAKEERRBASE(system, CRISPR_ERRSYS);
@@ -51,19 +51,37 @@ CRISPR_MAKEERRBASE(access, CRISPR_ERRACCESS);
 CRISPR_MAKEERRFULL(PERM, "Operation does not have adequate permissions to use object.", access);
 CRISPR_MAKEERRTYPE(AGAIN, "Operation could not be preformed at this time.");
 
-DLL_PUBLIC const char* Crispr_errname(Crispr_Errno stat) {
-	if (stat == CRISPR_ERRNOERR)
+DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
 		return CRISPR_NULL;
-	return stat->errdata;
+	return err->errdata;
 }
 
-DLL_PUBLIC const char* Crispr_errdesc(Crispr_Errno stat) {
-	if (stat == CRISPR_ERRNOERR)
+DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
 		return CRISPR_NULL;
-	const char* restrict data = stat->errdata;
+	const char* restrict data = err->errdata;
 	while (*data != '\0')
 		data++;
 	return data + 1;
+}
+
+DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
+		return CRISPR_NULL;
+	return err->bases;
+}
+
+DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
+	if (err == cmp)
+		return true;
+	if ((err && true) != (cmp && true))
+		return false;
+	for (const Crispr_Errno* restrict item = err->bases; *item != CRISPR_NULL; item++) {
+		if ((*item == cmp) || Crispr_errIsA(err, *item))
+			return true;
+	}
+	return false;
 }
 
 DLL_RESTORE

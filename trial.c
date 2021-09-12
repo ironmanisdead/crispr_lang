@@ -20,7 +20,11 @@ int main() {
 	Crispr_sema_lock(&mutex, false, CRISPR_NULL, CRISPR_NULL);
 	Crispr_Errno err;
 	Crispr_sema_destroy(&mutex, &err);
-	printf("Status: %s\n", Crispr_errname(err));
+	const char* stat = Crispr_errName(err);
+	stat = stat ? stat : "Success.";
+	printf("Status: %s\n", stat);
+	printf("is ERRTIMEDOUT a type of ERRINTR: %s\n", Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRINTR) ? "true" : "false");
+	printf("is ERRINTR a type of ERRTIMEDOUT: %s\n", Crispr_errIsA(CRISPR_ERRINTR, CRISPR_ERRTIMEDOUT) ? "true" : "false");
 	printf("Sema size: %zd\n", sizeof(Crispr_Sema));
 	printf("SemSched size: %zd\n", sizeof(Crispr_SemSched));
 	printf("Timer size: %zd\n", sizeof(Crispr_Timer));
