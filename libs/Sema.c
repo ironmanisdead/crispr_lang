@@ -107,7 +107,7 @@ static Crispr_Sema* crispr_semsched_pload(Crispr_SemSched* target) {
 
 static Crispr_Sema* crispr_semsched_pxchng(Crispr_SemSched* target, Crispr_Sema* lockval) {
 	Crispr_Sema* parent = crispr_semsched_plock(target);
-	crispr_semsched_prel(target, parent);
+	crispr_semsched_prel(target, lockval);
 	return parent;
 }
 
@@ -351,15 +351,15 @@ DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict 
 	crispr_sema_statrel(target, CRISPR_SEMA_KILL);
 	mtx_lock(&target->access);
 	for (Crispr_SemSched* ptr = target->schedptr; ptr != CRISPR_NULL; ptr = ptr->next) {
-		Crispr_Sema* loaded = atomic_exchange(&ptr->parent, CRISPR_NULL);
+		Crispr_Sema* loaded = crispr_semsched_plock(ptr);
 		if (loaded == &crispr_schedwait) {
 			int stat = cnd_signal(&ptr->lock);
 			(void)stat;
 			assert(stat == thrd_success);
 		} else if (loaded != CRISPR_NULL) {
-			atomic_store(&ptr->parent, CRISPR_NULL);
 			cnd_destroy(&ptr->lock);
 		}
+		crispr_semsched_prel(ptr, loaded);
 	}
 	target->schedptr = CRISPR_NULL;
 	mtx_unlock(&target->access);
@@ -404,23 +404,17 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
-	Crispr_Sema* parent = crispr_semsched_plock(&sched);
+	Crispr_Sema* parent = crispr_semsched_plock(sched);
 	if (parent == CRISPR_NULL) {
+		crispr_semsched_prel(sched, parent);
 		if (err)
 			*err = CRISPR_ERRSTALE;
 		return false;
 	}
-	Crispr_Sema* parent = sched->parent;
-	char lock = crispr_sema_statlock(parent);
-	if (lock & (CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
-		crispr_sema_statrel(parent, lock);
-		if (err)
-			*err = CRISPR_ERRSTALE;
-		return false;
-	}
-	parent->threads++;
-	crispr_sema_statrel(parent, lock);
-	mtx_lock(&parent->access);
+	if (parent == &crispr_schedwait)
+		cnd_signal(&sched->lock);
+	crispr_semsched_prel(sched, CRISPR_NULL);
+	return true;
 }
 
 DLL_RESTORE

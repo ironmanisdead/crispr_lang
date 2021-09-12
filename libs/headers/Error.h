@@ -30,7 +30,8 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRCONV;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRATTR;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERREMPTY;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNOEMPTY;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRCHNG;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSIG;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRTIMEDOUT;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSTALE;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRDEAD;
@@ -58,7 +59,8 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRAGAIN;
 #define CRISPR_ERRATTR &_Crispr_cn_ERRATTR //Type attribute missing or inappropriate for operation.
 #define CRISPR_ERREMPTY &_Crispr_cn_ERREMPTY //Object was empty, when an un-empty object was expected.
 #define CRISPR_ERRNOEMPTY &_Crispr_cn_ERRNOEMPTY //Object was not empty, when an empty object was expected.
-#define CRISPR_ERRINTR &_Crispr_cn_ERRINTR //Operation was interrupted.
+#define CRISPR_ERRCHNG &_Crispr_cn_ERRCHNG //Operation could not complete due to a change.
+#define CRISPR_ERRSIG &_Crispr_cn_ERRSIG //Operation interrupted due to signal.
 #define CRISPR_ERRTIMEDOUT &_Crispr_cn_ERRTIMEDOUT //Operation timed out.
 #define CRISPR_ERRSTALE &_Crispr_cn_ERRSTALE //Object is already been used up.
 #define CRISPR_ERRDEAD &_Crispr_cn_ERRDEAD //Object died during operation.
