@@ -19,6 +19,7 @@ extern const Crispr_Error _Crispr_cn_ERRNOMEM;
 extern const Crispr_Error _Crispr_cn_ERROBJECT;
 extern const Crispr_Error _Crispr_cn_ERRINIT;
 extern const Crispr_Error _Crispr_cn_ERRINDEX;
+extern const Crispr_Error _Crispr_cn_ERRMATH;
 extern const Crispr_Error _Crispr_cn_ERRDOMAIN;
 extern const Crispr_Error _Crispr_cn_ERRRANGE;
 extern const Crispr_Error _Crispr_cn_ERRFAULT;
