@@ -24,6 +24,7 @@ int main() {
 	stat = stat ? stat : "Success.";
 	printf("Status: %s\n", stat);
 	printf("is ERRTIMEDOUT a type of ERRCHNG: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRCHNG)));
+	printf("is ERRNOMEM a type of ERRSYS: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRNOMEM, CRISPR_ERRSYS)));
 	printf("is ERRCHNG a type of ERRTIMEDOUT: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRCHNG, CRISPR_ERRTIMEDOUT)));
 	printf("is ERRTIMEDOUT a type of ERRSYS: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRSYS)));
 	printf("Sema size: %zd\n", sizeof(Crispr_Sema));

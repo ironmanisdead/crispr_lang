@@ -13,10 +13,10 @@ ifneq ($(call isundef,LDFLAGS),)
  LDFLAGS:=-Wl,--disable-new-dtags
 endif
 ifneq ($(call isundef,CFLAGS),)
- CFLAGS:=$(if $(call isundef,EX_flags),,$(EX_flags)) -std=$(C_VER) -O3 -Wall -Wextra
+ CFLAGS:=$(if $(call isundef,EX_flags),,$(EX_flags)) -std=$(C_VER) -O3 -Wall -Wextra -Wpedantic
 endif
 ifneq ($(call isundef,DEF_lib$(current_lib)),)
- DEF_lib$(current_lib):=-D'DLL_EXPORT_LIB_$(current_lib)=1'
+ DEF_lib$(current_lib):=-DDLL_EXPORT_LIB_$(current_lib)=1
 endif
 ifneq ($(call isundef,OFLAGS),)
  OFLAGS:=-fPIC
