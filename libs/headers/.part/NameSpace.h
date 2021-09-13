@@ -4,10 +4,16 @@
 DLL_HIDE
 
 struct _Crispr_NameSpace {
-	mtx_t modify;
-	Crispr_Sema users;
-	Crispr_NsRef*** refs;
-	char name[];
+	bool single; //is the namespace in a single threaded environment
+	mtx_t modify; //modify mutex (only initialized in poly-threaded environment)
+	union {
+		Crispr_Sema userlock; //if multi-threaded
+		Crispr_Size usercount; //if single-threaded
+	};
+	Crispr_NsRef parent; //reference to parent namespace
+	Crispr_NsRef sibling; //reference to sibling namespace
+	Crispr_NsRef child; //reference to child namespace
+	char name[]; //name of namespace
 };
 
 #ifdef __GNUC__

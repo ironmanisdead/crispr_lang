@@ -4,7 +4,7 @@
 DLL_HIDE
 
 typedef struct _Crispr_NsRef {
-	const Crispr_NameSpace* ns;
+	Crispr_NameSpace* ns;
 	Crispr_SemSched user;
 } Crispr_NsRef;
 
@@ -13,7 +13,7 @@ typedef struct _Crispr_NsRef {
 #endif
 
 DLL_PUBLIC Crispr_NameSpace* Crispr_nsCreate(const char* restrict name,
-		const Crispr_NsRef* parent, Crispr_Errno* restrict);
+		const Crispr_NsRef* parent, bool single, Crispr_Errno* restrict);
 
 DLL_PUBLIC bool Crispr_nsRef(Crispr_NsRef* restrict dest, const Crispr_NameSpace* ns);
 

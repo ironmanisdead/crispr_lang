@@ -39,17 +39,19 @@ CRISPR_MAKEERRFULL(ATTR, "Type had attributes that were missing or inappropriate
 CRISPR_MAKEERRFULL(EMPTY, "Object was empty, when a non-empty object was expected.", object);
 CRISPR_MAKEERRFULL(NOTEMPTY, "Object had things in it, when an empty object was expected.", object);
 
-CRISPR_MAKEERRTYPE(INTR, "Operation was interrupted by a change.");
-CRISPR_MAKEERRBASE(change, CRISPR_ERRINTR);
+CRISPR_MAKEERRTYPE(CHNG, "Operation was interrupted by a change.");
+CRISPR_MAKEERRBASE(change, CRISPR_ERRCHNG);
+CRISPR_MAKEERRBASE(signal_pre, CRISPR_ERRCHNG, CRISPR_ERRSYS);
+CRISPR_MAKEERRFULL(SIG, "Operation was interrupted by a system signal.", signal_pre);
 CRISPR_MAKEERRFULL(TIMEDOUT, "Operation was timed out.", change);
 CRISPR_MAKEERRFULL(STALE, "Object is currently unusable for operation.", object);
-CRISPR_MAKEERRBASE(dead_pre, CRISPR_ERRINTR, CRISPR_ERRSTALE);
+CRISPR_MAKEERRBASE(dead_pre, CRISPR_ERRCHNG, CRISPR_ERRSTALE, CRISPR_ERROBJECT);
 CRISPR_MAKEERRFULL(DEAD, "Object became stale during operation.", dead_pre);
+CRISPR_MAKEERRFULL(AGAIN, "Operation could not be preformed at this time.", change);
 
 CRISPR_MAKEERRFULL(ACCESS, "Operation cannot access object", object);
 CRISPR_MAKEERRBASE(access, CRISPR_ERRACCESS);
 CRISPR_MAKEERRFULL(PERM, "Operation does not have adequate permissions to use object.", access);
-CRISPR_MAKEERRTYPE(AGAIN, "Operation could not be preformed at this time.");
 
 DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
@@ -80,7 +82,7 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 	if (err->bases == CRISPR_NULL)
 		return false;
 	for (const Crispr_Errno* restrict item = err->bases; *item != CRISPR_NULL; item++) {
-		if ((*item == cmp) || Crispr_errIsA(err, *item))
+		if ((*item == cmp) || Crispr_errIsA(*item, cmp))
 			return true;
 	}
 	return false;

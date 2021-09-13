@@ -8,7 +8,8 @@
 
 DLL_HIDE
 
-static Crispr_Sema crispr_c_schedbusy; //constant to tell semaphore busy status
+static Crispr_Sema crispr_schedread; //constant to signify semaphore read status
+static Crispr_Sema crispr_schedwait; //constant to signify semaphore busy status
 
 DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limit, Crispr_Errno* restrict err) {
 	atomic_init(&target->status, CRISPR_SEMA_DEAD);
@@ -75,6 +76,39 @@ static char crispr_sema_statxchng(Crispr_Sema* target, char stat) {
 	char lock = crispr_sema_statlock(target);
 	crispr_sema_statrel(target, stat);
 	return lock;
+}
+
+static Crispr_Sema* crispr_semsched_plock(Crispr_SemSched* target) {
+	Crispr_Sema* parent;
+	while (true) {
+		parent = atomic_exchange(&target->parent, &crispr_schedread);
+		if (parent != &crispr_schedread) {
+			return parent;
+		}
+	}
+}
+
+static void crispr_semsched_prel(Crispr_SemSched* target, Crispr_Sema* lockval) {
+	Crispr_Sema* parent = atomic_exchange(&target->parent, lockval);
+	(void)parent;
+	assert(parent == &crispr_schedread);
+}
+
+static Crispr_Sema* crispr_semsched_pload(Crispr_SemSched* target) {
+	Crispr_Sema* parent;
+	while (true) {
+		parent = atomic_exchange(&target->parent, &crispr_schedread);
+		if (parent != &crispr_schedread)
+			break;
+	}
+	atomic_store(&target->parent, parent);
+	return parent;
+}
+
+static Crispr_Sema* crispr_semsched_pxchng(Crispr_SemSched* target, Crispr_Sema* lockval) {
+	Crispr_Sema* parent = crispr_semsched_plock(target);
+	crispr_semsched_prel(target, lockval);
+	return parent;
 }
 
 static void crispr_sema_shift(Crispr_SemSched* rm) {
@@ -157,7 +191,7 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 		}
 		Crispr_SemSched** latest = crispr_sema_latest(target);
 		Crispr_SemSched waiter;
-		atomic_init(&waiter.parent, &crispr_c_schedbusy);
+		atomic_init(&waiter.parent, &crispr_schedwait);
 		waiter.next = CRISPR_NULL;
 		waiter.prev = latest;
 		int i = cnd_init(&waiter.lock);
@@ -317,15 +351,15 @@ DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict 
 	crispr_sema_statrel(target, CRISPR_SEMA_KILL);
 	mtx_lock(&target->access);
 	for (Crispr_SemSched* ptr = target->schedptr; ptr != CRISPR_NULL; ptr = ptr->next) {
-		Crispr_Sema* loaded = atomic_exchange(&ptr->parent, CRISPR_NULL);
-		if (loaded == &crispr_c_schedbusy) {
+		Crispr_Sema* loaded = crispr_semsched_plock(ptr);
+		if (loaded == &crispr_schedwait) {
 			int stat = cnd_signal(&ptr->lock);
 			(void)stat;
 			assert(stat == thrd_success);
 		} else if (loaded != CRISPR_NULL) {
-			atomic_store(&ptr->parent, CRISPR_NULL);
 			cnd_destroy(&ptr->lock);
 		}
+		crispr_semsched_prel(ptr, loaded);
 	}
 	target->schedptr = CRISPR_NULL;
 	mtx_unlock(&target->access);
@@ -356,26 +390,30 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 	if (term)
 		lock = CRISPR_SEMA_TERM;
 	Crispr_SemSched** latest = crispr_sema_latest(src);
-	int i = cnd_init(&dest->lock);
-	if (i == thrd_error) {
-		--src->threads;
-		crispr_sema_statrel(src, lock);
-		if (err)
-			*err = CRISPR_ERRSYS;
-		return false;
-	} else if (i == thrd_nomem) {
-		--src->threads;
-		crispr_sema_statrel(src, lock);
-		if (err)
-			*err = CRISPR_ERRNOMEM;
-		return false;
-	}
+	atomic_init(&dest->parent, &crispr_schedwait);
+	dest->parent = src;
 	atomic_init(&dest->parent, src);
 	dest->next = CRISPR_NULL;
 	dest->prev = latest;
 	*latest = dest;
 	--src->threads;
-	crispr_sema_statrel(src, CRISPR_SEMA_TERM);
+	crispr_sema_statrel(src, lock);
+	return true;
+}
+
+DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* restrict err) {
+	if (err)
+		*err = CRISPR_ERRNOERR;
+	Crispr_Sema* parent = crispr_semsched_plock(sched);
+	if (parent == CRISPR_NULL) {
+		crispr_semsched_prel(sched, parent);
+		if (err)
+			*err = CRISPR_ERRSTALE;
+		return false;
+	}
+	if (parent == &crispr_schedwait)
+		cnd_signal(&sched->lock);
+	crispr_semsched_prel(sched, CRISPR_NULL);
 	return true;
 }
 

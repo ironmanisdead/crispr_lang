@@ -23,9 +23,10 @@ int main() {
 	const char* stat = Crispr_errName(err);
 	stat = stat ? stat : "Success.";
 	printf("Status: %s\n", stat);
-	printf("is ERRTIMEDOUT a type of ERRINTR: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRINTR)));
-	printf("is ERRINTR a type of ERRTIMEDOUT: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRINTR, CRISPR_ERRTIMEDOUT)));
-	printf("is ERRTIMEDOUT a type or ERRSYS: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRINTR, CRISPR_ERRSYS)));
+	printf("is ERRTIMEDOUT a type of ERRCHNG: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRCHNG)));
+	printf("is ERRNOMEM a type of ERRSYS: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRNOMEM, CRISPR_ERRSYS)));
+	printf("is ERRCHNG a type of ERRTIMEDOUT: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRCHNG, CRISPR_ERRTIMEDOUT)));
+	printf("is ERRTIMEDOUT a type of ERRSYS: %s\n", Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRSYS)));
 	printf("Sema size: %zd\n", sizeof(Crispr_Sema));
 	printf("SemSched size: %zd\n", sizeof(Crispr_SemSched));
 	printf("Timer size: %zd\n", sizeof(Crispr_Timer));
