@@ -7,9 +7,24 @@ struct _Crispr_Error {
 	const Crispr_Errno* restrict bases;
 };
 
+DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc);
+
+DLL_PUBLIC bool _Crispr_errMake(Crispr_Error* restrict start,
+		const char* restrict info, const Crispr_Errno* restrict base);
+
+#define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbases_##name[] = { __VA_ARGS__, CRISPR_NULL }
+#define Crispr_errInitAs(var, name, info, err) _Crispr_errMake(&var, #name "\0" info, CRISPR_NULL, err)
+#define Crispr_errInitFrom(var, name, info, base, err) _Crispr_errMake(&var, #name "\0" info, crispr_errbases_##base, err)
+
+#define Crispr_errDynInitAs(var, name, info, err) _Crispr_errMake(&var, _Crispr_errSymMake(name, info), CRISPR_NULL, err)
+#define Crispr_errDynFree(var) Crispr_free((char*)var.name)
+
 #ifdef __GNUC__
+ #pragma GCC poison _Crispr_errSymMake
+ #pragma GCC poison _Crispr_errMake
  #pragma GCC poison _Crispr_Error
 #endif
+
 
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYS;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRESOURCE;

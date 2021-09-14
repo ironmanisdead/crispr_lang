@@ -1,57 +1,54 @@
 #include "headers/Error.h"
+#include "headers/.extra/Error.h"
 
 DLL_HIDE
 
-#define CRISPR_MAKEERRTYPE(name, info) DLL_PUBLIC const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, CRISPR_NULL }
-#define CRISPR_MAKEERRBASE(name, ...) static const Crispr_Errno crispr_errbase_##name[] = { __VA_ARGS__, CRISPR_NULL }
-#define CRISPR_MAKEERRFULL(name, info, base) DLL_PUBLIC const Crispr_Error _Crispr_cn_ERR##name = { #name "\0" info, crispr_errbase_##base }
+_Crispr_MakeErrType(SYS, "System error.");
+_Crispr_MakeErrBase(system, CRISPR_ERRSYS);
+_Crispr_MakeErrFull(RESOURCE, "System resource error.", system);
+_Crispr_MakeErrBase(resource, CRISPR_ERRRESOURCE);
+_Crispr_MakeErrType(PTR, "Pointer error");
 
-CRISPR_MAKEERRTYPE(SYS, "System error.");
-CRISPR_MAKEERRBASE(system, CRISPR_ERRSYS);
-CRISPR_MAKEERRFULL(RESOURCE, "System resource error.", system);
-CRISPR_MAKEERRBASE(resource, CRISPR_ERRRESOURCE);
-CRISPR_MAKEERRTYPE(PTR, "Pointer error");
+_Crispr_MakeErrType(INVAL, "Invalid value error.");
+_Crispr_MakeErrBase(invalid, CRISPR_ERRINVAL);
+_Crispr_MakeErrFull(SYMBOL, "Error in converting string to valid symbol.", invalid);
+_Crispr_MakeErrBase(invalid_pointer, CRISPR_ERRINVAL, CRISPR_ERRBADPTR);
+_Crispr_MakeErrFull(BADPTR, "Operation was given an invalid pointer, when it needed a valid address.", invalid_pointer);
+_Crispr_MakeErrBase(badptr, CRISPR_ERRBADPTR);
+_Crispr_MakeErrFull(NULL, "Null pointer given for operation, when operation needed a valid address.", badptr);
+_Crispr_MakeErrFull(FAULT, "Segmentation fault in userspace", badptr);
 
-CRISPR_MAKEERRTYPE(INVAL, "Invalid value error.");
-CRISPR_MAKEERRBASE(invalid, CRISPR_ERRINVAL);
-CRISPR_MAKEERRFULL(SYMBOL, "Error in converting string to valid symbol.", invalid);
-CRISPR_MAKEERRBASE(invalid_pointer, CRISPR_ERRINVAL, CRISPR_ERRBADPTR);
-CRISPR_MAKEERRFULL(BADPTR, "Operation was given an invalid pointer, when it needed a valid address.", invalid_pointer);
-CRISPR_MAKEERRBASE(badptr, CRISPR_ERRBADPTR);
-CRISPR_MAKEERRFULL(NULL, "Null pointer given for operation, when operation needed a valid address.", badptr);
-CRISPR_MAKEERRFULL(FAULT, "Segmentation fault in userspace", badptr);
+_Crispr_MakeErrFull(NOMEM, "Not enough memory for operation.", resource);
+_Crispr_MakeErrType(OBJECT, "Object encountered error.");
+_Crispr_MakeErrBase(object, CRISPR_ERROBJECT);
+_Crispr_MakeErrFull(INIT, "Operation could not initialize object completely.", object);
+_Crispr_MakeErrFull(INDEX, "Request out of range for object.", object);
 
-CRISPR_MAKEERRFULL(NOMEM, "Not enough memory for operation.", resource);
-CRISPR_MAKEERRTYPE(OBJECT, "Object encountered error.");
-CRISPR_MAKEERRBASE(object, CRISPR_ERROBJECT);
-CRISPR_MAKEERRFULL(INIT, "Operation could not initialize object completely.", object);
-CRISPR_MAKEERRFULL(INDEX, "Request out of range for object.", object);
+_Crispr_MakeErrType(MATH, "Operation encountered mathematical error.");
+_Crispr_MakeErrBase(math, CRISPR_ERRMATH);
+_Crispr_MakeErrFull(DOMAIN, "Parameter outside of mathematical domain.", math);
+_Crispr_MakeErrFull(RANGE, "Overflow encountered in result of operation.", math);
 
-CRISPR_MAKEERRTYPE(MATH, "Operation encountered mathematical error.");
-CRISPR_MAKEERRBASE(math, CRISPR_ERRMATH);
-CRISPR_MAKEERRFULL(DOMAIN, "Parameter outside of mathematical domain.", math);
-CRISPR_MAKEERRFULL(RANGE, "Overflow encountered in result of operation.", math);
+_Crispr_MakeErrFull(TYPE, "Operation encountered type error.", object);
+_Crispr_MakeErrBase(type, CRISPR_ERRTYPE);
+_Crispr_MakeErrFull(CONV, "Operation could not convert type into another.", type);
+_Crispr_MakeErrFull(ATTR, "Type had attributes that were missing or inappropriate for operation.", type);
+_Crispr_MakeErrFull(EMPTY, "Object was empty, when a non-empty object was expected.", object);
+_Crispr_MakeErrFull(NOTEMPTY, "Object had things in it, when an empty object was expected.", object);
 
-CRISPR_MAKEERRFULL(TYPE, "Operation encountered type error.", object);
-CRISPR_MAKEERRBASE(type, CRISPR_ERRTYPE);
-CRISPR_MAKEERRFULL(CONV, "Operation could not convert type into another.", type);
-CRISPR_MAKEERRFULL(ATTR, "Type had attributes that were missing or inappropriate for operation.", type);
-CRISPR_MAKEERRFULL(EMPTY, "Object was empty, when a non-empty object was expected.", object);
-CRISPR_MAKEERRFULL(NOTEMPTY, "Object had things in it, when an empty object was expected.", object);
+_Crispr_MakeErrType(CHNG, "Operation was interrupted by a change.");
+_Crispr_MakeErrBase(change, CRISPR_ERRCHNG);
+_Crispr_MakeErrBase(signal_pre, CRISPR_ERRCHNG, CRISPR_ERRSYS);
+_Crispr_MakeErrFull(SIG, "Operation was interrupted by a system signal.", signal_pre);
+_Crispr_MakeErrFull(TIMEDOUT, "Operation was timed out.", change);
+_Crispr_MakeErrFull(STALE, "Object is currently unusable for operation.", object);
+_Crispr_MakeErrBase(dead_pre, CRISPR_ERRCHNG, CRISPR_ERRSTALE, CRISPR_ERROBJECT);
+_Crispr_MakeErrFull(DEAD, "Object became stale during operation.", dead_pre);
+_Crispr_MakeErrFull(AGAIN, "Operation could not be preformed at this time.", change);
 
-CRISPR_MAKEERRTYPE(CHNG, "Operation was interrupted by a change.");
-CRISPR_MAKEERRBASE(change, CRISPR_ERRCHNG);
-CRISPR_MAKEERRBASE(signal_pre, CRISPR_ERRCHNG, CRISPR_ERRSYS);
-CRISPR_MAKEERRFULL(SIG, "Operation was interrupted by a system signal.", signal_pre);
-CRISPR_MAKEERRFULL(TIMEDOUT, "Operation was timed out.", change);
-CRISPR_MAKEERRFULL(STALE, "Object is currently unusable for operation.", object);
-CRISPR_MAKEERRBASE(dead_pre, CRISPR_ERRCHNG, CRISPR_ERRSTALE, CRISPR_ERROBJECT);
-CRISPR_MAKEERRFULL(DEAD, "Object became stale during operation.", dead_pre);
-CRISPR_MAKEERRFULL(AGAIN, "Operation could not be preformed at this time.", change);
-
-CRISPR_MAKEERRFULL(ACCESS, "Operation cannot access object", object);
-CRISPR_MAKEERRBASE(access, CRISPR_ERRACCESS);
-CRISPR_MAKEERRFULL(PERM, "Operation does not have adequate permissions to use object.", access);
+_Crispr_MakeErrFull(ACCESS, "Operation cannot access object", object);
+_Crispr_MakeErrBase(access, CRISPR_ERRACCESS);
+_Crispr_MakeErrFull(PERM, "Operation does not have adequate permissions to use object.", access);
 
 DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
