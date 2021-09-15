@@ -80,6 +80,3 @@
 		static void f(void) __attribute__((constructor)); \
 		static void f(void)
 #endif
-#ifndef Utils_offset
- #define Utils_offset(type, field) ((decltype(sizeof 0))(&((type*)0)->field))
-#endif

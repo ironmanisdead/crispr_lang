@@ -19,23 +19,35 @@ struct _Crispr_Error {
 DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc,
 		Crispr_Errno* restrict err);
 
-DLL_PUBLIC Crispr_Error _Crispr_errMake(struct _Crispr_ErrData info,
-		const Crispr_Errno* restrict base, Crispr_Errno* restrict err);
+DLL_PUBLIC bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* restrict err);
 
-#define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbases_##name[] = { __VA_ARGS__, CRISPR_NULL }
-#define Crispr_errInitAs(var, name, info, err) Crispr_Error var = _Crispr_errMake(\
-		{ true, { .errconst = #name "\0" info } }, CRISPR_NULL, err)
-#define Crispr_errInitFrom(var, name, info, base, err) Crispr_Error var = _Crispr_errMake(\
-		{ true, { .errconst = #name "\0" info }, crispr_errbases_##base, err)
+#define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbaseuser_##name[] = { __VA_ARGS__, CRISPR_NULL }
 
-#define Crispr_errDynInitAs(var, name, info, err) Crispr_Error var = _Crispr_errMake(\
-		{ false, { .erralloc = _Crispr_errSymMake(name, info, err) }, CRISPR_NULL, err)
-#define Crispr_errDynFree(var) Crispr_free((char*)(var).errdata)
+#define Crispr_errExt(var) extern Crispr_Error crispr_customerr_##var
+
+#define Crispr_errErrno(var) &crispr_customerr_##var
+
+#define Crispr_errDefAs(var, name, info) Crispr_Error crispr_customerr_##var = { { false, \
+	{ .errconst = #name "\0" info } }, \
+	CRISPR_NULL }
+
+#define Crispr_errDefFrom(var, name, info, base) Crispr_Error crispr_customerr_##var = { { true, \
+	{ .errconst = #name "\0" info } }, \
+	crispr_errbaseuser_##base }
+
+#define Crispr_errDynDefAs(var, name, info, err) Crispr_Error crispr_customerr_##var = { \
+		{ false, { .erralloc = _Crispr_errSymMake(name, info, err) } }, CRISPR_NULL }
+
+#define Crispr_errDynDefFrom(var, name, info, from, err) Crispr_Error crispr_customerr_##var = { { false, \
+	{ .erralloc = _Crispr_errSymMake(name, info, err) } }, \
+	crispr_errbaseuser_##base }
+
+#define Crispr_errDynFree(var, err) _Crispr_errDynFree(&crispr_customerr_##var, err)
 
 #ifdef __GNUC__
  #pragma GCC poison _Crispr_Error
  #pragma GCC poison _Crispr_errSymMake
- #pragma GCC poison _Crispr_errMake
+ #pragma GCC poison _Crispr_errDynFree
 #endif
 
 DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err);
