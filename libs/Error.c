@@ -1,7 +1,48 @@
 #include "headers/Error.h"
-#include "headers/.extra/Error.h"
+#include "headers/.part/Error.h"
 
 DLL_HIDE
+
+DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
+		return CRISPR_NULL;
+	if (err->data.fixed)
+		return err->data.errconst;
+	return err->data.erralloc;
+}
+
+DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
+		return CRISPR_NULL;
+	const char* restrict data;
+	if (err->data.fixed)
+		data = err->data.errconst;
+	else
+		data = err->data.erralloc;
+	while (*data != '\0')
+		data++;
+	return data + 1;
+}
+
+DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err) {
+	if (err == CRISPR_ERRNOERR)
+		return CRISPR_NULL;
+	return err->bases;
+}
+
+DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
+	if (err == cmp)
+		return true;
+	if ((err && true) != (cmp && true))
+		return false;
+	if (err->bases == CRISPR_NULL)
+		return false;
+	for (const Crispr_Errno* restrict item = err->bases; *item != CRISPR_NULL; item++) {
+		if ((*item == cmp) || Crispr_errIsA(*item, cmp))
+			return true;
+	}
+	return false;
+}
 
 _Crispr_MakeErrType(SYS, "System error.");
 _Crispr_MakeErrBase(system, CRISPR_ERRSYS);
@@ -49,40 +90,5 @@ _Crispr_MakeErrFull(AGAIN, "Operation could not be preformed at this time.", cha
 _Crispr_MakeErrFull(ACCESS, "Operation cannot access object", object);
 _Crispr_MakeErrBase(access, CRISPR_ERRACCESS);
 _Crispr_MakeErrFull(PERM, "Operation does not have adequate permissions to use object.", access);
-
-DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
-	if (err == CRISPR_ERRNOERR)
-		return CRISPR_NULL;
-	return err->errdata;
-}
-
-DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
-	if (err == CRISPR_ERRNOERR)
-		return CRISPR_NULL;
-	const char* restrict data = err->errdata;
-	while (*data != '\0')
-		data++;
-	return data + 1;
-}
-
-DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err) {
-	if (err == CRISPR_ERRNOERR)
-		return CRISPR_NULL;
-	return err->bases;
-}
-
-DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
-	if (err == cmp)
-		return true;
-	if ((err && true) != (cmp && true))
-		return false;
-	if (err->bases == CRISPR_NULL)
-		return false;
-	for (const Crispr_Errno* restrict item = err->bases; *item != CRISPR_NULL; item++) {
-		if ((*item == cmp) || Crispr_errIsA(*item, cmp))
-			return true;
-	}
-	return false;
-}
 
 DLL_RESTORE

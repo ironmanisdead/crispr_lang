@@ -1,30 +1,48 @@
 #pragma once
 #include "predefs.h"
+#include "Memory.h"
 DLL_HIDE
 
+struct _Crispr_ErrData {
+	bool fixed;
+	union {
+		const char* restrict errconst;
+		char* restrict erralloc;
+	};
+};
+
 struct _Crispr_Error {
-	const char* restrict errdata;
+	struct _Crispr_ErrData data;
 	const Crispr_Errno* restrict bases;
 };
 
-DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc);
+DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc,
+		Crispr_Errno* restrict err);
 
-DLL_PUBLIC bool _Crispr_errMake(Crispr_Error* restrict start,
-		const char* restrict info, const Crispr_Errno* restrict base);
+DLL_PUBLIC Crispr_Error _Crispr_errMake(struct _Crispr_ErrData info,
+		const Crispr_Errno* restrict base, Crispr_Errno* restrict err);
 
 #define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbases_##name[] = { __VA_ARGS__, CRISPR_NULL }
-#define Crispr_errInitAs(var, name, info, err) _Crispr_errMake(&var, #name "\0" info, CRISPR_NULL, err)
-#define Crispr_errInitFrom(var, name, info, base, err) _Crispr_errMake(&var, #name "\0" info, crispr_errbases_##base, err)
+#define Crispr_errInitAs(var, name, info, err) Crispr_Error var = _Crispr_errMake(\
+		{ true, { .errconst = #name "\0" info } }, CRISPR_NULL, err)
+#define Crispr_errInitFrom(var, name, info, base, err) Crispr_Error var = _Crispr_errMake(\
+		{ true, { .errconst = #name "\0" info }, crispr_errbases_##base, err)
 
-#define Crispr_errDynInitAs(var, name, info, err) _Crispr_errMake(&var, _Crispr_errSymMake(name, info), CRISPR_NULL, err)
-#define Crispr_errDynFree(var) Crispr_free((char*)var.name)
+#define Crispr_errDynInitAs(var, name, info, err) Crispr_Error var = _Crispr_errMake(\
+		{ false, { .erralloc = _Crispr_errSymMake(name, info, err) }, CRISPR_NULL, err)
+#define Crispr_errDynFree(var) Crispr_free((char*)(var).errdata)
 
 #ifdef __GNUC__
+ #pragma GCC poison _Crispr_Error
  #pragma GCC poison _Crispr_errSymMake
  #pragma GCC poison _Crispr_errMake
- #pragma GCC poison _Crispr_Error
 #endif
 
+DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err);
+DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err);
+
+DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err);
+DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp);
 
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYS;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRESOURCE;
@@ -82,11 +100,5 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRAGAIN;
 #define CRISPR_ERRACCESS &_Crispr_cn_ERRACCESS //Operation could not be preformed.
 #define CRISPR_ERRPERM &_Crispr_cn_ERRPERM //Operation does not have high enough permissions.
 #define CRISPR_ERRAGAIN &_Crispr_cn_ERRAGAIN //Operation could not be preformed at this time.
-
-DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err);
-DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err);
-
-DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err);
-DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp);
 
 DLL_RESTORE
