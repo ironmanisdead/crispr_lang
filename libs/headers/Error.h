@@ -19,6 +19,9 @@ struct _Crispr_Error {
 DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc,
 		Crispr_Errno* restrict err);
 
+DLL_PUBLIC bool _Crispr_errSet(Crispr_Error* restrict dest, struct _Crispr_ErrData data,
+		const Crispr_Errno* restrict bases, Crispr_Errno* restrict err);
+
 DLL_PUBLIC bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* restrict err);
 
 #define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbaseuser_##name[] = { __VA_ARGS__, CRISPR_NULL }
@@ -27,9 +30,14 @@ DLL_PUBLIC bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* res
 
 #define Crispr_errErrno(var) &crispr_customerr_##var
 
-#define Crispr_errDefAs(var, name, info) Crispr_Error crispr_customerr_##var = { { false, \
+#define Crispr_errToBases(name, errno) const Crispr_Errno* restrict crispr_errbaseuser_##name = errno
+
+#define Crispr_errDefAs(var, name, info) Crispr_Error crispr_customerr_##var = { { true, \
 	{ .errconst = #name "\0" info } }, \
 	CRISPR_NULL }
+
+#define Crispr_errSetAs(var, name, info, err) _Crispr_errSet(&(var), \
+		(struct _Crispr_ErrData){ true, { .errconst = #name "\0" info } }, CRISPR_NULL, err)
 
 #define Crispr_errDefFrom(var, name, info, base) Crispr_Error crispr_customerr_##var = { { true, \
 	{ .errconst = #name "\0" info } }, \
@@ -45,6 +53,7 @@ DLL_PUBLIC bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* res
 #define Crispr_errDynFree(var, err) _Crispr_errDynFree(&crispr_customerr_##var, err)
 
 #ifdef __GNUC__
+ #pragma GCC poison _Crispr_ErrData
  #pragma GCC poison _Crispr_Error
  #pragma GCC poison _Crispr_errSymMake
  #pragma GCC poison _Crispr_errDynFree
