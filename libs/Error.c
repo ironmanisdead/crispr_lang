@@ -1,24 +1,25 @@
 #include "headers/Error.h"
 #include "headers/.part/Error.h"
+#include "headers/Symbol.h"
 
 DLL_HIDE
 
 DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
 		return CRISPR_NULL;
-	if (err->data.fixed)
-		return err->data.errconst;
-	return err->data.erralloc;
+	if (err->data.alloc)
+		return err->data.erralloc;
+	return err->data.errconst;
 }
 
 DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
 		return CRISPR_NULL;
 	const char* restrict data;
-	if (err->data.fixed)
-		data = err->data.errconst;
-	else
+	if (err->data.alloc)
 		data = err->data.erralloc;
+	else
+		data = err->data.errconst;
 	while (*data != '\0')
 		data++;
 	return data + 1;
@@ -42,6 +43,50 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 			return true;
 	}
 	return false;
+}
+
+DLL_PUBLIC char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc, Crispr_Errno* restrict err) {
+	if (err)
+		*err = CRISPR_ERRNOERR;
+	Crispr_Size len;
+	if (!Crispr_symLen(&len, name, err))
+		return CRISPR_NULL;
+	char* result = Crispr_malloc(len + Crispr_strLen(desc) + 2);
+	if (!result) {
+		*err = CRISPR_ERRNOMEM;
+		return CRISPR_NULL;
+	}
+	Crispr_strCpy(result, name);
+	Crispr_strCpy(&result[len + 1], desc);
+	return result;
+}
+
+DLL_PUBLIC bool _Crispr_errSet(Crispr_Error* restrict res, struct _Crispr_ErrData data,
+		const Crispr_Errno* restrict bases, Crispr_Errno* restrict err) {
+	if (data.alloc) {
+		if (data.erralloc == CRISPR_NULL)
+			return false;
+	} else if (err) {
+		*err = CRISPR_ERRNOERR;
+	}
+	res->data = data;
+	res->bases = bases;
+	return true;
+}
+
+DLL_PUBLIC bool _Crispr_errDynFree(Crispr_Error* restrict target, Crispr_Errno* restrict err) {
+	if (err)
+		*err = CRISPR_ERRNOERR;
+	if (!target->data.alloc) {
+		*err = CRISPR_ERRATTR;
+		return false;
+	} else if (target->data.erralloc == CRISPR_NULL) {
+		*err = CRISPR_ERRSTALE;
+		return false;
+	}
+	Crispr_free(target->data.erralloc);
+	target->data.erralloc = CRISPR_NULL;
+	return true;
 }
 
 _Crispr_MakeErrType(SYS, "System error.");
