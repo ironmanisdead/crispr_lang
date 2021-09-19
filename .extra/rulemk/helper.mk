@@ -17,7 +17,7 @@ ifneq ($(call isundef,OLEVEL),)
 endif
 ifneq ($(call isundef,CFLAGS),)
  CFLAGS:=$(if $(call isundef,EX_flags),,$(EX_flags) )-Wmissing-declarations\
-	 -std=$(C_VER) -O$(OLEVEL) -Wall -Wextra -Wpedantic
+	 -std=$(C_VER) -O$(OLEVEL) -Wall -Wextra -Wpedantic -Werror=implicit-function-declaration
 endif
 ifneq ($(call isundef,DEF_lib$(current_lib)),)
  DEF_lib$(current_lib):=-DDLL_EXPORT_LIB_$(current_lib)=1

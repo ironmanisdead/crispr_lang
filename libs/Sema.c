@@ -411,9 +411,68 @@ DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* re
 			*err = CRISPR_ERRSTALE;
 		return false;
 	}
-	if (parent == &crispr_schedwait)
+	if (parent == &crispr_schedwait) {
 		cnd_signal(&sched->lock);
+	} else {
+		mtx_lock(&parent->access);
+		atomic_store(&sched->next->prev, sched->prev);
+		atomic_store(sched->prev, sched->next);
+		mtx_unlock(&parent->access);
+	}
 	crispr_semsched_prel(sched, CRISPR_NULL);
+	return true;
+}
+
+DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Timer* restrict wait,
+		Crispr_Errno* restrict err) {
+	if (err)
+		*err = CRISPR_ERRNOERR;
+	char present;
+	struct timespec timeconv;
+	if (!crispr_sema_time(&present, &timeconv, wait, err))
+		return false;
+	Crispr_Sema* parent = crispr_semsched_plock(sched);
+	if (parent == CRISPR_NULL) {
+		crispr_semsched_prel(sched, CRISPR_NULL);
+		return true;
+	}
+	if (parent == &crispr_schedwait) {
+		crispr_semsched_prel(sched, parent);
+		if (err)
+			*err = CRISPR_ERRACCESS;
+		return false;
+	}
+	crispr_semsched_prel(sched, &crispr_schedwait);
+	{
+		int stat = mtx_lock(&parent->access);
+		(void)stat;
+		assert(stat == thrd_success);
+	}
+	int result;
+	switch (present) {
+		case 0:
+			result = cnd_wait(&sched->lock, &parent->access);
+			break;
+		case 1:
+			result = cnd_timedwait(&sched->lock, &parent->access, &timeconv);
+			break;
+		default:
+			mtx_unlock(&parent->access);
+			if (err)
+				*err = CRISPR_ERRAGAIN;
+			return false;
+	}
+	mtx_unlock(&parent->access);
+	if (result == thrd_timedout) {
+		if (err)
+			*err = CRISPR_ERRAGAIN;
+		return false;
+	}
+	if (crispr_semsched_pxchng(sched, CRISPR_NULL) == CRISPR_NULL) {
+		if (err)
+			*err = CRISPR_ERRACCESS;
+		return false;
+	}
 	return true;
 }
 
