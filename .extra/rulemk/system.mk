@@ -13,9 +13,6 @@ endif
 ifneq ($(call isundef,H_EXT),)
  H_EXT:=h
 endif
-ifneq ($(call isundef,EX_flags),)
- EX_flags:=-Wmissing-declarations -Werror=implicit-function-declaration
-endif
 ifneq ($(call isundef,current_lib),)
  current_lib:=crispr_api
 endif

@@ -12,8 +12,12 @@ endif
 ifneq ($(call isundef,LDFLAGS),)
  LDFLAGS:=-Wl,--disable-new-dtags
 endif
+ifneq ($(call isundef,OLEVEL),)
+ OLEVEL:=3
+endif
 ifneq ($(call isundef,CFLAGS),)
- CFLAGS:=$(if $(call isundef,EX_flags),,$(EX_flags)) -std=$(C_VER) -O3 -Wall -Wextra -Wpedantic
+ CFLAGS:=$(if $(call isundef,EX_flags),,$(EX_flags) )-Wmissing-declarations\
+	 -std=$(C_VER) -O$(OLEVEL) -Wall -Wextra -Wpedantic
 endif
 ifneq ($(call isundef,DEF_lib$(current_lib)),)
  DEF_lib$(current_lib):=-DDLL_EXPORT_LIB_$(current_lib)=1
@@ -33,6 +37,7 @@ export EXLIBS
 export C_VER
 export C_EXT
 export H_EXT
+export OLEVEL
 export CFLAGS
 export OFLAGS
 export DEF_lib$(current_lib)
