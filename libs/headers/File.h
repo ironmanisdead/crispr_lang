@@ -27,9 +27,10 @@ typedef struct {
 #define CRISPR_FILE_APPEND 0x04
 #define CRISPR_FILE_DIR 0x08
 #define CRISPR_FILE_PIPE 0x0C
-#define CRISPR_FILE_READ 0x10
-#define CRISPR_FILE_WRITE 0x20
-#define CRISPR_FILE_EXEC 0x40
+#define CRISPR_FILE_TMP 0x10
+#define CRISPR_FILE_READ 0x20
+#define CRISPR_FILE_WRITE 0x40
+#define CRISPR_FILE_EXEC 0x80
 
 DLL_PUBLIC bool Crispr_fileOpen(Crispr_File* restrict dst, const char* restrict name,
 		char mode, Crispr_Errno* restrict err);

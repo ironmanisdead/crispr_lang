@@ -67,36 +67,36 @@ static bool crispr_clock_cpu(Crispr_S64* restrict res, Crispr_Errno* restrict er
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_RELA = {
 	"CLK_RELA: Timestamp measuring temporal difference..",
-	CRISPR_NULL,
-	{ 0, CRISPR_NULL, },
+	Crispr_nullFun(bool, Crispr_S64* restrict, Crispr_Errno* restrict),
+	{ 0, Crispr_nullObj(Crispr_Rule), },
 	CRISPR_TMTYP_REAL,
 };
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_ABS = {
 	"CLK_ABS: Accurate timestamp with implementation-defined epoch.",
 	&crispr_clock_tai,
-	{ 0, CRISPR_NULL, },
+	{ 0, Crispr_nullObj(Crispr_Rule), },
 	CRISPR_TMTYP_REAL,
 };
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_UTC = {
 	"CLK_UTC: Clock holding time adjusted from UTC epoch",
 	&crispr_clock_utc,
-	{ 0, CRISPR_NULL, },
+	{ 0, Crispr_nullObj(Crispr_Rule), },
 	CRISPR_TMTYP_REAL,
 };
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_CPU0 = {
 	"CLK_CPU0 measures difference between cpu times.",
-	CRISPR_NULL,
-	{ 0, CRISPR_NULL, },
+	Crispr_nullFun(bool, Crispr_S64* restrict, Crispr_Errno* restrict),
+	{ 0, Crispr_nullObj(Crispr_Rule), },
 	CRISPR_TMTYP_CPU,
 };
 
 DLL_PUBLIC const Crispr_Clock _Crispr_cn_CLK_CPU1 = {
 	"CLK_CPU0 measures difference between cpu times.",
 	&crispr_clock_cpu,
-	{ 0, CRISPR_NULL, },
+	{ 0, Crispr_nullObj(Crispr_Rule), },
 	CRISPR_TMTYP_CPU,
 };
 

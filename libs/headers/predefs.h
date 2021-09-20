@@ -35,6 +35,8 @@ typedef struct _Crispr_Error Crispr_Error;
 typedef const Crispr_Error* restrict Crispr_Errno;
 #define Crispr_boolStr(exp) ((exp) ? ("(" #exp ") is true") : ("(" #exp ") is false"))
 #define CRISPR_NULL (void*)(0)
+#define Crispr_nullObj(type) (type*)(0)
+#define Crispr_nullFun(ret, ...) (ret (*)(__VA_ARGS__))(0)
 #pragma push_macro("DLL_EXPORTED")
 #define DLL_EXPORTED DLL_EXPORT_LIB_crispr_api
 #include ".c_extern/internal-macros.h"

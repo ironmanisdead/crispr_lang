@@ -12,7 +12,7 @@ Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef*
 	if (!name) {
 		if (err)
 			*err = CRISPR_ERRNULL;
-		return CRISPR_NULL;
+		return Crispr_nullObj(Crispr_NameSpace);
 	}
 	Crispr_Size len;
 	if (!Crispr_symLen(&len, name, err))
@@ -25,10 +25,10 @@ Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef*
 		if (status == thrd_error) {
 			if (err)
 				*err = CRISPR_ERRSYS;
-			return CRISPR_NULL;
+			return Crispr_nullObj(Crispr_NameSpace);
 		}
 		if (!Crispr_sema_init(&result->userlock, 1, err)) {
-			return CRISPR_NULL;
+			return Crispr_nullObj(Crispr_NameSpace);
 		}
 	}
 	if (ref) {
