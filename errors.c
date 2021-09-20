@@ -7,8 +7,8 @@ int main() {
 	Crispr_Errno test = Crispr_errErrno(err);
 	printf("%s: %s\n", Crispr_errName(test), Crispr_errDesc(test));
 	Crispr_Error var;
-	Crispr_errDynSetAs(var, "Dynamic", "Dynamic error", Crispr_nullObj(Crispr_Errno));
+	Crispr_errDynSetAs(var, "Dynamic", "Dynamic error", Crispr_nullRef(Crispr_Errno));
 	printf("%s: %s\n", Crispr_errName(&var), Crispr_errDesc(&var));
-	Crispr_errDynSetFree(var, Crispr_nullObj(Crispr_Errno));
+	Crispr_errDynSetFree(var, Crispr_nullRef(Crispr_Errno));
 	exit(0);
 }

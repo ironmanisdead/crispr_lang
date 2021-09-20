@@ -23,7 +23,7 @@ DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limi
 		atomic_store(&target->status, CRISPR_SEMA_IDLE);
 		target->limit = limit;
 		target->counter = 1;
-		target->schedptr = Crispr_nullObj(Crispr_SemSched);
+		target->schedptr = Crispr_nullRef(Crispr_SemSched);
 		return true;
 	}
 	{
@@ -107,7 +107,7 @@ static void crispr_sema_shift(Crispr_SemSched* rm) {
 	*prev = next;
 	if (next)
 		next->prev = prev;
-	rm->parent = Crispr_nullObj(Crispr_Sema);
+	rm->parent = Crispr_nullRef(Crispr_Sema);
 }
 
 static Crispr_SemSched** crispr_sema_latest(Crispr_Sema* target) {
@@ -181,7 +181,7 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 		Crispr_SemSched** latest = crispr_sema_latest(target);
 		Crispr_SemSched waiter;
 		atomic_init(&waiter.parent, &crispr_schedwait);
-		waiter.next = Crispr_nullObj(Crispr_SemSched);
+		waiter.next = Crispr_nullRef(Crispr_SemSched);
 		waiter.prev = latest;
 		int i = cnd_init(&waiter.lock);
 		if (i == thrd_error) {
@@ -339,18 +339,18 @@ DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict 
 	}
 	crispr_sema_statrel(target, CRISPR_SEMA_KILL);
 	mtx_lock(&target->access);
-	for (Crispr_SemSched* ptr = target->schedptr; ptr != Crispr_nullObj(Crispr_SemSched); ptr = ptr->next) {
+	for (Crispr_SemSched* ptr = target->schedptr; ptr != Crispr_nullRef(Crispr_SemSched); ptr = ptr->next) {
 		Crispr_Sema* loaded = crispr_semsched_plock(ptr);
 		if (loaded == &crispr_schedwait) {
 			int stat = cnd_signal(&ptr->lock);
 			(void)stat;
 			assert(stat == thrd_success);
-		} else if (loaded != Crispr_nullObj(Crispr_Sema)) {
+		} else if (loaded != Crispr_nullRef(Crispr_Sema)) {
 			cnd_destroy(&ptr->lock);
 		}
 		crispr_semsched_prel(ptr, loaded);
 	}
-	target->schedptr = Crispr_nullObj(Crispr_SemSched);
+	target->schedptr = Crispr_nullRef(Crispr_SemSched);
 	mtx_unlock(&target->access);
 	while (target->threads > 1) {
 		mtx_lock(&target->access);
@@ -382,7 +382,7 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 	atomic_init(&dest->parent, &crispr_schedwait);
 	dest->parent = src;
 	atomic_init(&dest->parent, src);
-	dest->next = Crispr_nullObj(Crispr_SemSched);
+	dest->next = Crispr_nullRef(Crispr_SemSched);
 	dest->prev = latest;
 	*latest = dest;
 	--src->threads;
@@ -394,7 +394,7 @@ DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* re
 	if (err)
 		*err = CRISPR_ERRNOERR;
 	Crispr_Sema* parent = crispr_semsched_plock(sched);
-	if (parent == Crispr_nullObj(Crispr_Sema)) {
+	if (parent == Crispr_nullRef(Crispr_Sema)) {
 		crispr_semsched_prel(sched, parent);
 		if (err)
 			*err = CRISPR_ERRSTALE;
@@ -404,11 +404,12 @@ DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* re
 		cnd_signal(&sched->lock);
 	} else {
 		mtx_lock(&parent->access);
-		atomic_store(&sched->next->prev, sched->prev);
-		atomic_store(sched->prev, sched->next);
+		if (sched->next != Crispr_nullRef(Crispr_SemSched))
+			sched->next->prev = sched->prev;
+		*(sched->prev) = sched->next;
 		mtx_unlock(&parent->access);
 	}
-	crispr_semsched_prel(sched, Crispr_nullObj(Crispr_Sema));
+	crispr_semsched_prel(sched, Crispr_nullRef(Crispr_Sema));
 	return true;
 }
 
@@ -421,8 +422,8 @@ DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Tim
 	if (!crispr_sema_time(&present, &timeconv, wait, err))
 		return false;
 	Crispr_Sema* parent = crispr_semsched_plock(sched);
-	if (parent == Crispr_nullObj(Crispr_Sema)) {
-		crispr_semsched_prel(sched, Crispr_nullObj(Crispr_Sema));
+	if (parent == Crispr_nullRef(Crispr_Sema)) {
+		crispr_semsched_prel(sched, Crispr_nullRef(Crispr_Sema));
 		return true;
 	}
 	if (parent == &crispr_schedwait) {
@@ -457,7 +458,7 @@ DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Tim
 			*err = CRISPR_ERRAGAIN;
 		return false;
 	}
-	if (crispr_semsched_pxchg(sched, Crispr_nullObj(Crispr_Sema)) == Crispr_nullObj(Crispr_Sema)) {
+	if (crispr_semsched_pxchg(sched, Crispr_nullRef(Crispr_Sema)) == Crispr_nullRef(Crispr_Sema)) {
 		if (err)
 			*err = CRISPR_ERRACCESS;
 		return false;

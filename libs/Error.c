@@ -6,7 +6,7 @@ DLL_HIDE
 
 DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
-		return Crispr_nullObj(char);
+		return Crispr_nullRef(char);
 	if (err->data.alloc)
 		return err->data.erralloc;
 	return err->data.errconst;
@@ -14,7 +14,7 @@ DLL_PUBLIC const char* Crispr_errName(Crispr_Errno err) {
 
 DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
-		return Crispr_nullObj(char);
+		return Crispr_nullRef(char);
 	const char* restrict data;
 	if (err->data.alloc)
 		data = err->data.erralloc;
@@ -27,7 +27,7 @@ DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err) {
 
 DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err) {
 	if (err == CRISPR_ERRNOERR)
-		return Crispr_nullObj(Crispr_Errno);
+		return Crispr_nullRef(Crispr_Errno);
 	return err->bases;
 }
 
@@ -36,9 +36,9 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 		return true;
 	if ((err && true) != (cmp && true))
 		return false;
-	if (err->bases == Crispr_nullObj(Crispr_Errno))
+	if (err->bases == Crispr_nullRef(Crispr_Errno))
 		return false;
-	for (const Crispr_Errno* restrict item = err->bases; *item != Crispr_nullObj(Crispr_Error); item++) {
+	for (const Crispr_Errno* restrict item = err->bases; *item != Crispr_nullRef(Crispr_Error); item++) {
 		if ((*item == cmp) || Crispr_errIsA(*item, cmp))
 			return true;
 	}
@@ -50,11 +50,11 @@ DLL_PUBLIC NONNULL(1, 2) char* _Crispr_errSymMake(const char* restrict name, con
 		*err = CRISPR_ERRNOERR;
 	Crispr_Size len;
 	if (!Crispr_symLen(&len, name, err))
-		return Crispr_nullObj(char);
+		return Crispr_nullRef(char);
 	char* result = Crispr_malloc(len + Crispr_strLen(desc) + 2);
 	if (!result) {
 		*err = CRISPR_ERRNOMEM;
-		return Crispr_nullObj(char);
+		return Crispr_nullRef(char);
 	}
 	Crispr_strCpy(result, name);
 	Crispr_strCpy(&result[len + 1], desc);
@@ -64,7 +64,7 @@ DLL_PUBLIC NONNULL(1, 2) char* _Crispr_errSymMake(const char* restrict name, con
 DLL_PUBLIC NONNULL(1) bool _Crispr_errSet(Crispr_Error* restrict res, struct _Crispr_ErrData data,
 		const Crispr_Errno* restrict bases, Crispr_Errno* restrict err) {
 	if (data.alloc) {
-		if (data.erralloc == Crispr_nullObj(char))
+		if (data.erralloc == Crispr_nullRef(char))
 			return false;
 	} else if (err) {
 		*err = CRISPR_ERRNOERR;
@@ -80,12 +80,12 @@ DLL_PUBLIC NONNULL(1) bool _Crispr_errDynFree(Crispr_Error* restrict target, Cri
 	if (!target->data.alloc) {
 		*err = CRISPR_ERRATTR;
 		return false;
-	} else if (target->data.erralloc == Crispr_nullObj(char)) {
+	} else if (target->data.erralloc == Crispr_nullRef(char)) {
 		*err = CRISPR_ERRSTALE;
 		return false;
 	}
 	Crispr_free(target->data.erralloc);
-	target->data.erralloc = Crispr_nullObj(char);
+	target->data.erralloc = Crispr_nullRef(char);
 	return true;
 }
 

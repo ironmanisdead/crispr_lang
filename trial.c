@@ -7,17 +7,17 @@
 #include <assert.h>
 int main() {
 	Crispr_Sema mutex;
-	Crispr_sema_init(&mutex, 1, Crispr_nullObj(Crispr_Errno));
-	Crispr_sema_lock(&mutex, false, Crispr_nullObj(Crispr_Timer), Crispr_nullObj(Crispr_Errno));
+	Crispr_sema_init(&mutex, 1, Crispr_nullRef(Crispr_Errno));
+	Crispr_sema_lock(&mutex, false, Crispr_nullRef(Crispr_Timer), Crispr_nullRef(Crispr_Errno));
 	Crispr_Timer timer;
-	Crispr_timeNow(&timer, CRISPR_CLK_RELA, 2, CRISPR_TIME_SECOND, Crispr_nullObj(Crispr_Errno));
+	Crispr_timeNow(&timer, CRISPR_CLK_RELA, 2, CRISPR_TIME_SECOND, Crispr_nullRef(Crispr_Errno));
 	Crispr_Timer timelock;
-	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_UTC, CRISPR_TIME_SECOND, Crispr_nullObj(Crispr_Errno));
-	Crispr_timeConv(&timer, &timelock, CRISPR_CLK_ABS, CRISPR_TIME_SECOND, Crispr_nullObj(Crispr_Errno));
-	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_RELA, CRISPR_TIME_SECOND, Crispr_nullObj(Crispr_Errno));
-	Crispr_sema_lock(&mutex, false, &timelock, Crispr_nullObj(Crispr_Errno));
-	Crispr_sema_unlock(&mutex, Crispr_nullObj(Crispr_Errno));
-	Crispr_sema_lock(&mutex, false, Crispr_nullObj(Crispr_Timer), Crispr_nullObj(Crispr_Errno));
+	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_UTC, CRISPR_TIME_SECOND, Crispr_nullRef(Crispr_Errno));
+	Crispr_timeConv(&timer, &timelock, CRISPR_CLK_ABS, CRISPR_TIME_SECOND, Crispr_nullRef(Crispr_Errno));
+	Crispr_timeConv(&timelock, &timer, CRISPR_CLK_RELA, CRISPR_TIME_SECOND, Crispr_nullRef(Crispr_Errno));
+	Crispr_sema_lock(&mutex, false, &timelock, Crispr_nullRef(Crispr_Errno));
+	Crispr_sema_unlock(&mutex, Crispr_nullRef(Crispr_Errno));
+	Crispr_sema_lock(&mutex, false, Crispr_nullRef(Crispr_Timer), Crispr_nullRef(Crispr_Errno));
 	Crispr_Errno err;
 	Crispr_sema_destroy(&mutex, &err);
 	const char* stat = Crispr_errName(err);
