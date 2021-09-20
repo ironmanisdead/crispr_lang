@@ -24,7 +24,7 @@ DLL_PUBLIC NONNULL(1) bool _Crispr_errSet(Crispr_Error* restrict dest, struct _C
 
 DLL_PUBLIC NONNULL(1) bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* restrict err);
 
-#define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbaseuser_##name[] = { __VA_ARGS__, CRISPR_NULL }
+#define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbaseuser_##name[] = { __VA_ARGS__, Crispr_nullObj(Crispr_Error) }
 
 #define Crispr_errExt(var) extern Crispr_Error crispr_customerr_##var
 
@@ -34,10 +34,10 @@ DLL_PUBLIC NONNULL(1) bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr
 
 #define Crispr_errDefAs(var, name, desc) Crispr_Error crispr_customerr_##var = { { false, \
 	{ .errconst = #name "\0" desc } }, \
-	CRISPR_NULL }
+	Crispr_nullObj(Crispr_Errno) }
 
 #define Crispr_errSetAs(var, name, desc, err) _Crispr_errSet(&(var), \
-		(struct _Crispr_ErrData){ false, { .errconst = #name "\0" desc } }, CRISPR_NULL, err)
+		(struct _Crispr_ErrData){ false, { .errconst = #name "\0" desc } }, Crispr_nullObj(Crispr_Errno), err)
 
 #define Crispr_errDefFrom(var, name, desc, base) Crispr_Error crispr_customerr_##var = { { false, \
 	{ .errconst = #name "\0" desc } }, \
@@ -48,11 +48,11 @@ DLL_PUBLIC NONNULL(1) bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr
 		crispr_errbaseuser_##base, err)
 
 #define Crispr_errDynDefAs(var, name, desc, err) Crispr_Error crispr_customerr_##var = { \
-		{ true, { .erralloc = _Crispr_errSymMake(name, desc, err) } }, CRISPR_NULL }
+		{ true, { .erralloc = _Crispr_errSymMake(name, desc, err) } }, Crispr_nullObj(Crispr_Errno) }
 
 #define Crispr_errDynSetAs(var, name, desc, err) _Crispr_errSet(&(var), \
 		(struct _Crispr_ErrData){ true, { .erralloc = _Crispr_errSymMake(name, desc, err) } }, \
-		CRISPR_NULL, err)
+		Crispr_nullObj(Crispr_Errno), err)
 
 #define Crispr_errDynDefFrom(var, name, desc, base, err) Crispr_Error crispr_customerr_##var = { { true, \
 	{ .erralloc = _Crispr_errSymMake(name, desc, err) } }, \
