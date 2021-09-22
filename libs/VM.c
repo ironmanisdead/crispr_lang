@@ -20,7 +20,7 @@ DLL_PUBLIC bool Crispr_stackInit(Crispr_Stack* restrict stack, const char* code,
 	return true;
 }
 
-DLL_PUBLIC bool Crispr_runVM(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err) {
+DLL_PUBLIC bool Crispr_vmRun(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
 	Crispr_Stack* stack = vm->stack;
@@ -29,16 +29,17 @@ DLL_PUBLIC bool Crispr_runVM(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Er
 			*err = CRISPR_ERRNULL;
 		return false;
 	}
-	const char* restrict code = stack->code;
-	if (!code) {
+	if (!stack->code) {
 		if (err)
 			*err = CRISPR_ERRNULL;
 		return false;
 	}
 	while (true) {
-		if (*(Crispr_VmOp*)code == CRISPR_VMOP_NOOP)
+		if (*(Crispr_VmOp*)stack->code == CRISPR_VMOP_NOOP) {
+			stack->code += sizeof(Crispr_VmOp);
 			continue;
-		if (*(Crispr_VmOp*)code == CRISPR_VMOP_HALT)
+		}
+		if (*(Crispr_VmOp*)stack->code == CRISPR_VMOP_HALT)
 			break;
 		if (exec > 0) {
 			if (--exec == 0) {

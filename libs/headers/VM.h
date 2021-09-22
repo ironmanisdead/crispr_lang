@@ -42,13 +42,16 @@ typedef struct {
 } Crispr_Stack;
 
 typedef struct {
-	Crispr_Word ret; //return value register
 	Crispr_Word va0; //return register/first argument
 	Crispr_Word va1; //second argument register
 	Crispr_Word va2; //third argument register
 	Crispr_Word va3; //fourth argument register
 	Crispr_Word va4; //fifth argument register
 	Crispr_Word va5; //sixth argument register
+	Crispr_Word im0; //call-preserved register 1
+	Crispr_Word im1; //call-preserved register 2
+	Crispr_Word im2; //call-preserved register 3
+	Crispr_Word im3; //call-preserved register 4
 	struct {
 		char zero : 1; //zero flag (set if result is zero)
 		char carry : 1; //carry flag (set if overflow occurs)
@@ -66,13 +69,21 @@ DLL_PUBLIC bool Crispr_stackInit(Crispr_Stack* restrict stack, const char* restr
 
 #define Crispr_vm(stck) ((Crispr_VM){ .flags = { .brk = 0, .dir = 0 }, .stack = stck })
 
-typedef enum {
+#pragma push_macro("ENUM_PACK")
+#ifdef __GNUC__
+ #define ENUM_PACK __attribute__ ((__packed__))
+#else
+ #define ENUM_PACK
+#endif
+
+typedef enum ENUM_PACK {
 	CRISPR_VMOP_NOOP, //NO-op: read until next instruction
 	CRISPR_VMOP_LOCK, //lock: make sure next instruction is not executed with any other locked instructions
 	CRISPR_VMOP_HALT, //halt: stop the VM
 	CRISPR_VMOP_MOVE, //move: move one thing into another
 	CRISPR_VMOP_XCHG, //exchange: swap two values
 	CRISPR_VMOP_XCHGCMP, //compare and exchange: swap dest with source if equal to comparison
+	CRISPR_VMOP_NOT, //does a bitwise "not" of one operand
 	CRISPR_VMOP_AND, //does a bitwise "and" of two operands
 	CRISPR_VMOP_OR, //does a bitwise "or" of two operands
 	CRISPR_VMOP_XOR, //does a bitwise "xor" of two operands
@@ -88,7 +99,7 @@ typedef enum {
 	CRISPR_VMOP_RET, //returns from function
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
-typedef enum {
+typedef enum ENUM_PACK {
 	CRISPR_VMSZ_BYTE, //byte-sized
 	CRISPR_VMSZ_SHRT, //short-int sized
 	CRISPR_VMSZ_INTG, //integer sized
@@ -98,19 +109,39 @@ typedef enum {
 	CRISPR_VMSZ_PNTR, //pointer-sized
 } Crispr_VmSz; //VmSz describes operand size for certain operations
 
-typedef enum {
-	CRISPR_VMLD_MEM, //memory operand
+typedef enum ENUM_PACK {
+	CRISPR_VMLD_LIT, //literal (immediate) operand
+	//offsets:
+	CRISPR_VMLD_MEM, //computed memory operand
 	CRISPR_VMLD_STK, //stack offset operand
 	CRISPR_VMLD_FRM, //frame offset operand
+	CRISPR_VMLD_CUR, //instruction pointer offset
 	CRISPR_VMLD_FLG, //specific flag offset
+	//registers:
 	CRISPR_VMLD_VA0, //return/first argument register
 	CRISPR_VMLD_VA1, //second argument register
 	CRISPR_VMLD_VA2, //third argument register
 	CRISPR_VMLD_VA3, //fourth argument register
 	CRiSPR_VMLD_VA4, //fifth argument register
 	CRISPR_VMLD_VA5, //sixth argument register
+	CRISPR_VMLD_IM0, //call-preserved register 1
+	CRISPR_VMLD_IM1, //call-preserved register 2
+	CRISPR_VMLD_IM2, //call-preserved register 3
+	CRISPR_VMLD_IM3, //call-preserved register 4
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
-DLL_PUBLIC bool Crispr_runVM(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err);
+typedef enum ENUM_PACK {
+	CRISPR_VMFL_ZF, //zero flag
+	CRISPR_VMFL_CF, //carry flag
+	CRISPR_VMFL_AF, //adjust flag
+	CRISPR_VMFL_SF, //sign flag
+	CRISPR_VMFL_PF, //partity flag
+	CRISPR_VMFL_DF, //direction flag
+	CRISPR_VMFL_BF, //interrupt flag
+} Crispr_VmFl; //VmFl describes flag offset
+
+DLL_PUBLIC bool Crispr_vmRun(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err);
+
+#pragma pop_macro("ENUM_PACK")
 
 DLL_RESTORE
