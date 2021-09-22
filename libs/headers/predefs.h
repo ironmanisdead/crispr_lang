@@ -19,6 +19,7 @@
  #include <stdbool.h>
 #endif
 typedef signed char Crispr_Schar;
+typedef unsigned char Crispr_Uchar;
 typedef unsigned short Crispr_Ushort;
 typedef unsigned int Crispr_Uint;
 typedef unsigned long Crispr_Ulong;
