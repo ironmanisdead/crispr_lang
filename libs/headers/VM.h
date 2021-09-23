@@ -31,37 +31,34 @@ typedef struct _Crispr_Fixed {
 #endif
 
 typedef struct {
+	Crispr_Word regs[6]; //register set
+} Crispr_VmReg; //register set for VM
+
+typedef struct {
+	const char* restrict code; //instruction (code) pointer
+	Crispr_VmReg call; //caller-save registers
+	Crispr_VmReg imm; //immediate registers
 	mtx_t lock; //used for non-owner to read/write, and for owner to reallocate
 	Crispr_Size len; //current allocated length of stack
 	char* data; //pointer to stack origin
-	const char* restrict code; //instruction (code) pointer
 	Crispr_Fixed* fixed; //pointer to linked list of Fixed objects
 	Crispr_Size frame; //function call frame offset
 	Crispr_Size end; //stack ending offset (where push puts things, and pop pops things)
 } Crispr_Stack;
 
 typedef struct {
-	Crispr_Word va0; //return register/first argument
-	Crispr_Word va1; //second argument register
-	Crispr_Word va2; //third argument register
-	Crispr_Word va3; //fourth argument register
-	Crispr_Word va4; //fifth argument register
-	Crispr_Word va5; //sixth argument register
-	Crispr_Word im0; //call-preserved register 1
-	Crispr_Word im1; //call-preserved register 2
-	Crispr_Word im2; //call-preserved register 3
-	Crispr_Word im3; //call-preserved register 4
-	struct {
-		char zero : 1; //zero flag (set if result is zero)
-		char carry : 1; //carry flag (set if overflow occurs)
-		char adj : 1; //adjust flag (sets if upper nibble of lowest byte in destination has changed)
-		char sign : 1; //sign flag (set if result is negative)
-		char dir : 1; //direction flag for string processing (set if backwards, unset if forwards)
-		char parity : 1; //parity (set if even, unset if odd)
-		char brk : 1; //interrupt flag (set if interrupts are enabled)
-	} flags;
+	Crispr_VmReg regs; //VM-global registers
+	short flags; //flags register
 	Crispr_Stack* stack; //holds the pointer to the current stack context
 } Crispr_VM;
+
+#define CRISPR_VMFL_ZF 0x01 //zero flag
+#define CRISPR_VMFL_CF 0x02 //carry flag
+#define CRISPR_VMFL_AD 0x04 //adjust flag
+#define CRISPR_VMFL_SF 0x08 //sign flag
+#define CRISPR_VMFL_PF 0x10 //parity flag
+#define CRISPR_VMFL_DF 0x20 //direction flag
+#define CRISPR_VMFL_BF 0x40 //interrupt flag
 
 DLL_PUBLIC bool Crispr_stackInit(Crispr_Stack* restrict stack, const char* restrict codeseg,
 		Crispr_Size len, Crispr_Errno* restrict err);
@@ -81,7 +78,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMOP_HALT, //halt: stop interpreting instructions from this code
 	CRISPR_VMOP_STOP, //stop: interrupt interpreting instructions from this code
 	CRISPR_VMOP_MOVE, //move: move one thing into another
-	CRISPR_VMOP_POSI, //position: effective address of value
+	CRISPR_VMOP_POSI, //position: get effective address of offset
 	CRISPR_VMOP_XCHG, //exchange: swap two values
 	CRISPR_VMOP_XCMP, //compare and exchange: swap dest with source if equal to comparison
 	CRISPR_VMOP_NOT, //does a bitwise "not" of one operand
@@ -96,6 +93,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMOP_PUSH, //pushes value into stack, and resizes if nessecary
 	CRISPR_VMOP_POP, //pops last pushed value out of stack
 	CRISPR_VMOP_FRAME, //sets call frame of function
+	CRISPR_VMOP_JMP, //jumps with more conditions specified
 	CRISPR_VMOP_CALL, //calls another function
 	CRISPR_VMOP_RET, //returns from function
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
@@ -111,35 +109,19 @@ typedef enum ENUM_PACK {
 } Crispr_VmSz; //VmSz describes operand size for certain operations
 
 typedef enum ENUM_PACK {
-	CRISPR_VMLD_LIT, //literal (immediate) operand
-	//offsets:
-	CRISPR_VMLD_MEM, //computed memory operand
-	CRISPR_VMLD_STK, //stack origin offset operand
-	CRISPR_VMLD_FRM, //frame offset operand
-	CRISPR_VMLD_CUR, //instruction pointer offset
-	CRISPR_VMLD_FLG, //specific flag offset
-	//registers:
-	CRISPR_VMLD_VA0, //return/first argument register
-	CRISPR_VMLD_VA1, //second argument register
-	CRISPR_VMLD_VA2, //third argument register
-	CRISPR_VMLD_VA3, //fourth argument register
-	CRiSPR_VMLD_VA4, //fifth argument register
-	CRISPR_VMLD_VA5, //sixth argument register
-	CRISPR_VMLD_IM0, //call-preserved register 1
-	CRISPR_VMLD_IM1, //call-preserved register 2
-	CRISPR_VMLD_IM2, //call-preserved register 3
-	CRISPR_VMLD_IM3, //call-preserved register 4
+	CRISPR_VMLD_LIT, //literal value
+	CRISPR_VMLD_OFF, //load offset
+	CRISPR_VMLD_FLG, //load flag
+	CRISPR_VMLD_REG_VM, //VM global register
+	CRISPR_VMLD_REG_RA, //caller-save register
+	CRISPR_VMLD_REG_IM, //intermediate-value register
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
 typedef enum ENUM_PACK {
-	CRISPR_VMFL_ZF, //zero flag
-	CRISPR_VMFL_CF, //carry flag
-	CRISPR_VMFL_AF, //adjust flag
-	CRISPR_VMFL_SF, //sign flag
-	CRISPR_VMFL_PF, //partity flag
-	CRISPR_VMFL_DF, //direction flag
-	CRISPR_VMFL_BF, //interrupt flag
-} Crispr_VmFl; //VmFl describes flag offset
+	CRISPR_VMOF_MEM, //memory offset
+	CRISPR_VMOF_STK, //stack offset
+	CRISPR_VMOF_FRM, //frame offset
+} Crispr_VmOf; //runs with flag offset
 
 DLL_PUBLIC bool Crispr_vmRun(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err);
 

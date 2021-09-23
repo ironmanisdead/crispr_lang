@@ -29,7 +29,7 @@ typedef struct {
 	};
 } Crispr_VmRef;
 
-static bool Crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, Crispr_Errno* restrict err) {
+static bool Crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, bool offset, Crispr_Errno* restrict err) {
 	Crispr_Stack* stack = vm->stack;
 	switch (*(Crispr_VmLd*)stack->code) {
 		case CRISPR_VMLD_LIT:
@@ -37,8 +37,6 @@ static bool Crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, 
 			*wrd = *(Crispr_Word*)stack->code;
 			stack->code += sizeof(Crispr_Word);
 			return true;
-		case CRISPR_VMLD_STK:
-			stack->code += sizeof(Crispr_VmLd);
 	}
 	return true;
 }
