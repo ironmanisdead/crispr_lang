@@ -16,8 +16,7 @@ typedef union {
 	Crispr_Size siz; //size type
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
-	void* mptr; //pointer to mutable memory
-	const void* cptr; //pointer to constant memory
+	void* ptr; //pointer to memory
 } Crispr_Word;
 
 typedef struct _Crispr_Fixed {
@@ -79,10 +78,12 @@ DLL_PUBLIC bool Crispr_stackInit(Crispr_Stack* restrict stack, const char* restr
 typedef enum ENUM_PACK {
 	CRISPR_VMOP_NOOP, //NO-op: read until next instruction
 	CRISPR_VMOP_LOCK, //lock: make sure next instruction is not executed with any other locked instructions
-	CRISPR_VMOP_HALT, //halt: stop the VM
+	CRISPR_VMOP_HALT, //halt: stop interpreting instructions from this code
+	CRISPR_VMOP_STOP, //stop: interrupt interpreting instructions from this code
 	CRISPR_VMOP_MOVE, //move: move one thing into another
+	CRISPR_VMOP_POSI, //position: effective address of value
 	CRISPR_VMOP_XCHG, //exchange: swap two values
-	CRISPR_VMOP_XCHGCMP, //compare and exchange: swap dest with source if equal to comparison
+	CRISPR_VMOP_XCMP, //compare and exchange: swap dest with source if equal to comparison
 	CRISPR_VMOP_NOT, //does a bitwise "not" of one operand
 	CRISPR_VMOP_AND, //does a bitwise "and" of two operands
 	CRISPR_VMOP_OR, //does a bitwise "or" of two operands
@@ -113,7 +114,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMLD_LIT, //literal (immediate) operand
 	//offsets:
 	CRISPR_VMLD_MEM, //computed memory operand
-	CRISPR_VMLD_STK, //stack offset operand
+	CRISPR_VMLD_STK, //stack origin offset operand
 	CRISPR_VMLD_FRM, //frame offset operand
 	CRISPR_VMLD_CUR, //instruction pointer offset
 	CRISPR_VMLD_FLG, //specific flag offset

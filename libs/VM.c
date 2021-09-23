@@ -20,6 +20,40 @@ DLL_PUBLIC bool Crispr_stackInit(Crispr_Stack* restrict stack, const char* code,
 	return true;
 }
 
+typedef struct {
+	Crispr_VmLd type;
+	union {
+		Crispr_VmFl flag;
+		Crispr_Size offset;
+		void* ptr;
+	};
+} Crispr_VmRef;
+
+static bool Crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, Crispr_Errno* restrict err) {
+	Crispr_Stack* stack = vm->stack;
+	switch (*(Crispr_VmLd*)stack->code) {
+		case CRISPR_VMLD_LIT:
+			stack->code += sizeof(Crispr_VmLd);
+			*wrd = *(Crispr_Word*)stack->code;
+			stack->code += sizeof(Crispr_Word);
+			return true;
+		case CRISPR_VMLD_STK:
+			stack->code += sizeof(Crispr_VmLd);
+	}
+	return true;
+}
+
+static bool Crispr_vmGetRef(Crispr_VmRef* restrict ref, Crispr_VM* restrict vm, Crispr_Errno* restrict err) {
+	Crispr_Stack* stack = vm->stack;
+	switch (*(Crispr_VmLd*)stack->code) {
+		case CRISPR_VMLD_LIT:
+			if (err)
+				*err = CRISPR_ERRINVAL;
+			return false;
+		case CRISPR_VMLD_MEM:
+	}
+}
+
 DLL_PUBLIC bool Crispr_vmRun(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERRNOERR;
