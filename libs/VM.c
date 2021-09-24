@@ -27,11 +27,45 @@ typedef struct {
 	};
 } Crispr_VmRef;
 
-static bool crispr_vm_offset(void* restrict* restrict res, Crispr_Stack* stack, Crispr_Errno* restrict err) {
+static bool crispr_vm_getWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, bool offset,
+		Crispr_Errno* restrict err);
+
+static bool crispr_vm_offset(Crispr_Word* restrict res, Crispr_VM* restrict vm, Crispr_Errno* restrict err) {
+	Crispr_Stack* stack = vm->stack;
+	switch (*(Crispr_VmOf*)&vm->code[stack->ip]) {
+		case CRISPR_VMOF_MEM:
+			stack->ip += sizeof(Crispr_VmOf);
+			if (!crispr_vm_getWord(res, vm, false, err))
+				return false;
+			break;
+		case CRISPR_VMOF_COD:
+			stack->ip += sizeof(Crispr_VmOf);
+			res->ptr = (char*)vm->code;
+			break;
+		case CRISPR_VMOF_CUR:
+			res->ptr = (char*)&vm->code[stack->ip];
+			stack->ip += sizeof(Crispr_VmOf);
+			break;
+		case CRISPR_VMOF_STK:
+			res->ptr = (char*)&stack->origin[stack->off];
+			break;
+		default:
+			if (err)
+				*err = CRISPR_ERR_VM_ARG;
+			return false;
+	}
+	Crispr_Word off;
+	if (!crispr_vm_getWord(&off, vm, false, err))
+		return false;
+	Crispr_Word mult;
+	if (!crispr_vm_getWord(&mult, vm, false, err))
+		return false;
+	res->ptr += (off.off * mult.off);
+	return true;
 }
 
-static bool crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, Crispr_VmSz size,
-		bool offset, Crispr_Errno* restrict err) {
+static bool crispr_vm_getWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, bool offset,
+		Crispr_Errno* restrict err) {
 	Crispr_Stack* stack = vm->stack;
 	switch (*(Crispr_VmLd*)&vm->code[stack->ip]) {
 		case CRISPR_VMLD_LIT:
@@ -47,8 +81,6 @@ static bool crispr_vmGetWord(Crispr_Word* restrict wrd, Crispr_VM* restrict vm, 
 			}
 			stack->ip += sizeof(Crispr_VmLd);
 			Crispr_Word ptr;
-			Crispr_Word off;
-			Crispr_Word mult;
 	}
 	return true;
 }
@@ -60,7 +92,6 @@ static bool Crispr_vmGetRef(Crispr_VmRef* restrict ref, Crispr_VM* restrict vm, 
 			if (err)
 				*err = CRISPR_ERR_VM_OP;
 			return false;
-		case CRISPR_VMLD_OFF:
 	}
 	return true;
 }

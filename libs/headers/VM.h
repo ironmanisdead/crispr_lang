@@ -18,7 +18,7 @@ typedef union {
 	Crispr_Size off; //offset type
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
-	void* ptr; //pointer to memory
+	char* ptr; //pointer to memory
 	bool (*api)(const Crispr_Stack*); //make api call
 } Crispr_Word;
 
@@ -131,6 +131,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMOF_STK, //stack offset
 	CRISPR_VMOF_FRM, //frame offset
 	CRISPR_VMOF_COD, //code pointer offset
+	CRISPR_VMOF_CUR, //instruction pointer offset
 } Crispr_VmOf; //runs with flag offset
 
 DLL_PUBLIC bool Crispr_vmRun(Crispr_VM* restrict vm, Crispr_Size exec, Crispr_Errno* restrict err);
