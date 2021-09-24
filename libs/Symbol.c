@@ -22,22 +22,22 @@ DLL_PUBLIC Crispr_Size Crispr_strCpy(char* restrict dst, const char* restrict sr
 
 DLL_PUBLIC bool Crispr_symLen(Crispr_Size* restrict res, const char* restrict sym, Crispr_Errno* restrict err) {
 	if (err)
-		*err = CRISPR_ERRNOERR;
+		*err = CRISPR_ERR_NOERR;
 	if (!sym) {
 		if (err)
-			*err = CRISPR_ERRNULL;
+			*err = CRISPR_ERR_NULL;
 		return false;
 	}
 	char ch = sym[0];
 	if (ch == '\0') {
 		*res = 0;
 		if (err)
-			*err = CRISPR_ERREMPTY;
+			*err = CRISPR_ERR_EMPTY;
 		return false;
 	}
 	if (((ch < 'A') || (ch > 'Z')) && ((ch < 'a') || (ch > 'z')) && (ch != '_')) {
 		if (err)
-			*err = CRISPR_ERRSYMBOL;
+			*err = CRISPR_ERR_SYMBOL;
 		return false;
 	}
 	Crispr_Size idx;
@@ -45,7 +45,7 @@ DLL_PUBLIC bool Crispr_symLen(Crispr_Size* restrict res, const char* restrict sy
 		if (((ch < 'A') || (ch > 'Z')) && ((ch < 'a') || (ch > 'z')) &&
 				((ch < '0') || (ch > '9')) && (ch != '_')) {
 			if (err)
-				*err = CRISPR_ERRSYMBOL;
+				*err = CRISPR_ERR_SYMBOL;
 			return false;
 		}
 	}

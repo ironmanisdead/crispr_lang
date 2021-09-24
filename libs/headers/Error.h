@@ -81,63 +81,73 @@ DLL_PUBLIC const char* Crispr_errDesc(Crispr_Errno err);
 DLL_PUBLIC const Crispr_Errno* Crispr_errBases(Crispr_Errno err);
 DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp);
 
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYS;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRESOURCE;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINVAL;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSYMBOL;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRBADPTR;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNULL;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNOMEM;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERROBJECT;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINIT;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRINDEX;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRMATH;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRDOMAIN;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRRANGE;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRFAULT;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRTYPE;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRCONV;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRATTR;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERREMPTY;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRNOEMPTY;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRCHNG;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSIG;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRLIMIT;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRTIMEDOUT;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRSTALE;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRDEAD;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRACCESS;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRPERM;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERRAGAIN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_SYS;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_RESOURCE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_INVAL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_SYMBOL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_BADPTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_NULL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_NOMEM;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_OBJECT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_INIT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_INDEX;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_MATH;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_DOMAIN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_RANGE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_FAULT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_TYPE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_CONV;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_ATTR;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_EMPTY;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_NOEMPTY;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_CHNG;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_SIG;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_LIMIT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_TIMEDOUT;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_STALE;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_DEAD;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_ACCESS;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_PERM;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_AGAIN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_API;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_OP;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
 
-#define CRISPR_ERRNOERR ((Crispr_Errno)0) //No error.
-#define CRISPR_ERRSYS &_Crispr_cn_ERRSYS //System error.
-#define CRISPR_ERRRESOURCE &_Crispr_cn_ERRRESOURCE //System resource error.
-#define CRISPR_ERRINVAL &_Crispr_cn_ERRINVAL //Invalid parameter passed to function.
-#define CRISPR_ERRSYMBOL &_Crispr_cn_ERRSYMBOL //Invalid name for a variable
-#define CRISPR_ERRBADPTR &_Crispr_cn_ERRBADPTR //Invalid pointer was not expected in operation.
-#define CRISPR_ERRNULL &_Crispr_cn_ERRNULL //Null parameter was not expected in function.
-#define CRISPR_ERRFAULT &_Crispr_cn_ERRFAULT //Segmentation fault in userspace.
-#define CRISPR_ERRNOMEM &_Crispr_cn_ERRNOMEM //No more memory available for operation.
-#define CRISPR_ERROBJECT &_Crispr_cn_ERROBJECT //Object error.
-#define CRISPR_ERRINIT &_Crispr_cn_ERRINIT //Object initialization failed.
-#define CRISPR_ERRINDEX &_Crispr_cn_ERRINDEX //Parameter describes index that does not occur in object.
-#define CRISPR_ERRMATH &_Crispr_cn_ERRMATH //Mathematical error.
-#define CRISPR_ERRDOMAIN &_Crispr_cn_ERRDOMAIN //Parameter outside mathematical domain.
-#define CRISPR_ERRRANGE &_Crispr_cn_ERRRANGE //Result cannot be represented due to overflow.
-#define CRISPR_ERRTYPE &_Crispr_cn_ERRTYPE //Unknown type error.
-#define CRISPR_ERRCONV &_Crispr_cn_ERRCONV //Type conversion error.
-#define CRISPR_ERRATTR &_Crispr_cn_ERRATTR //Type attribute missing or inappropriate for operation.
-#define CRISPR_ERREMPTY &_Crispr_cn_ERREMPTY //Object was empty, when an un-empty object was expected.
-#define CRISPR_ERRNOEMPTY &_Crispr_cn_ERRNOEMPTY //Object was not empty, when an empty object was expected.
-#define CRISPR_ERRCHNG &_Crispr_cn_ERRCHNG //Operation could not complete due to a change.
-#define CRISPR_ERRSIG &_Crispr_cn_ERRSIG //Operation interrupted due to signal.
-#define CRISPR_ERRLIMIT &_Crispr_cn_ERRLIMIT //Operation reached specific limit
-#define CRISPR_ERRTIMEDOUT &_Crispr_cn_ERRTIMEDOUT //Operation timed out.
-#define CRISPR_ERRSTALE &_Crispr_cn_ERRSTALE //Object is already been used up.
-#define CRISPR_ERRDEAD &_Crispr_cn_ERRDEAD //Object died during operation.
-#define CRISPR_ERRACCESS &_Crispr_cn_ERRACCESS //Operation could not be preformed.
-#define CRISPR_ERRPERM &_Crispr_cn_ERRPERM //Operation does not have high enough permissions.
-#define CRISPR_ERRAGAIN &_Crispr_cn_ERRAGAIN //Operation could not be preformed at this time.
+#define CRISPR_ERR_NOERR ((Crispr_Errno)0) //No error.
+#define CRISPR_ERR_SYS &_Crispr_cn_ERR_SYS //System error.
+#define CRISPR_ERR_RESOURCE &_Crispr_cn_ERR_RESOURCE //System resource error.
+#define CRISPR_ERR_INVAL &_Crispr_cn_ERR_INVAL //Invalid parameter passed to function.
+#define CRISPR_ERR_SYMBOL &_Crispr_cn_ERR_SYMBOL //Invalid name for a variable
+#define CRISPR_ERR_BADPTR &_Crispr_cn_ERR_BADPTR //Invalid pointer was not expected in operation.
+#define CRISPR_ERR_NULL &_Crispr_cn_ERR_NULL //Null parameter was not expected in function.
+#define CRISPR_ERR_FAULT &_Crispr_cn_ERR_FAULT //Segmentation fault in userspace.
+#define CRISPR_ERR_NOMEM &_Crispr_cn_ERR_NOMEM //No more memory available for operation.
+#define CRISPR_ERR_OBJECT &_Crispr_cn_ERR_OBJECT //Object error.
+#define CRISPR_ERR_INIT &_Crispr_cn_ERR_INIT //Object initialization failed.
+#define CRISPR_ERR_INDEX &_Crispr_cn_ERR_INDEX //Parameter describes index that does not occur in object.
+#define CRISPR_ERR_MATH &_Crispr_cn_ERR_MATH //Mathematical error.
+#define CRISPR_ERR_DOMAIN &_Crispr_cn_ERR_DOMAIN //Parameter outside mathematical domain.
+#define CRISPR_ERR_RANGE &_Crispr_cn_ERR_RANGE //Result cannot be represented due to overflow.
+#define CRISPR_ERR_TYPE &_Crispr_cn_ERR_TYPE //Unknown type error.
+#define CRISPR_ERR_CONV &_Crispr_cn_ERR_CONV //Type conversion error.
+#define CRISPR_ERR_ATTR &_Crispr_cn_ERR_ATTR //Type attribute missing or inappropriate for operation.
+#define CRISPR_ERR_EMPTY &_Crispr_cn_ERR_EMPTY //Object was empty, when an un-empty object was expected.
+#define CRISPR_ERR_NOEMPTY &_Crispr_cn_ERR_NOEMPTY //Object was not empty, when an empty object was expected.
+#define CRISPR_ERR_CHNG &_Crispr_cn_ERR_CHNG //Operation could not complete due to a change.
+#define CRISPR_ERR_SIG &_Crispr_cn_ERR_SIG //Operation interrupted due to signal.
+#define CRISPR_ERR_LIMIT &_Crispr_cn_ERR_LIMIT //Operation reached specific limit
+#define CRISPR_ERR_TIMEDOUT &_Crispr_cn_ERR_TIMEDOUT //Operation timed out.
+#define CRISPR_ERR_STALE &_Crispr_cn_ERR_STALE //Object is already been used up.
+#define CRISPR_ERR_DEAD &_Crispr_cn_ERR_DEAD //Object died during operation.
+#define CRISPR_ERR_ACCESS &_Crispr_cn_ERR_ACCESS //Operation could not be preformed.
+#define CRISPR_ERR_PERM &_Crispr_cn_ERR_PERM //Operation does not have high enough permissions.
+#define CRISPR_ERR_AGAIN &_Crispr_cn_ERR_AGAIN //Operation could not be preformed at this time.
+#define CRISPR_ERR_VM &_Crispr_cn_ERR_VM //VM instruction execution error
+#define CRISPR_ERR_VM_API &_Crispr_cn_ERR_VM_API //VM api function error
+#define CRISPR_ERR_VM_SYN &_Crispr_cn_ERR_VM_SYN //VM syntax error
+#define CRISPR_ERR_VM_OP &_Crispr_cn_ERR_VM_OP //VM invalid operand
+#define CRISPR_ERR_VM_ARG &_Crispr_cn_ERR_VM_ARG //VM invalid argument
 
 DLL_RESTORE

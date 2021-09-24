@@ -8,10 +8,10 @@ DLL_HIDE
 Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef* restrict ref,
 		bool single, Crispr_Errno* restrict err) {
 	if (err)
-		*err = CRISPR_ERRNOERR;
+		*err = CRISPR_ERR_NOERR;
 	if (!name) {
 		if (err)
-			*err = CRISPR_ERRNULL;
+			*err = CRISPR_ERR_NULL;
 		return Crispr_nullRef(Crispr_NameSpace);
 	}
 	Crispr_Size len;
@@ -24,7 +24,7 @@ Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef*
 		int status = mtx_init(&result->modify, mtx_plain);
 		if (status == thrd_error) {
 			if (err)
-				*err = CRISPR_ERRSYS;
+				*err = CRISPR_ERR_SYS;
 			return Crispr_nullRef(Crispr_NameSpace);
 		}
 		if (!Crispr_sema_init(&result->userlock, 1, err)) {

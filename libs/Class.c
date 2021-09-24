@@ -5,7 +5,7 @@ DLL_HIDE
 
 DLL_PUBLIC bool Crispr_protoClass(Crispr_ProtoClass* restrict dst, const char* restrict name, Crispr_Errno* restrict err) {
 	if (err)
-		*err = CRISPR_ERRNOERR;
+		*err = CRISPR_ERR_NOERR;
 	dst->main.proto = true;
 	dst->name = name;
 	return true;
