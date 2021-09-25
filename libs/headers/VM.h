@@ -4,7 +4,7 @@
 
 DLL_HIDE
 
-typedef struct _Crispr_Stack Crispr_Stack;
+typedef struct _Crispr_VmStack Crispr_VmStack;
 
 typedef union {
 	Crispr_Schar sbyte; //signed byte
@@ -20,7 +20,7 @@ typedef union {
 	double dbl; //double-precision float type
 	char* ptr; //pointer to memory
 	const char* cptr; //pointer to constant memory
-	bool (*api)(const Crispr_Stack*); //make api call
+	bool (*api)(const Crispr_VmStack*); //make api call
 } Crispr_VmWord;
 
 typedef struct _Crispr_VmFixObj {
@@ -55,17 +55,17 @@ typedef struct {
 } Crispr_VmReg; //register set for VM
 
 typedef struct {
-	mtx_t runlock; //locks the VM when a stack is using it
-	Crispr_Stack* _Atomic volatile stonk; //pointer to the first loaded stack
+	mtx_t lock; //locks the VM when a stack is using it
+	Crispr_VmStack* _Atomic volatile stack; //pointer to the first loaded stack
 	Crispr_VmReg regs; //VM-global registers
 	short flags; //flags register
-	Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
+	const Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
 } Crispr_VM;
 
-struct _Crispr_Stack {
+struct _Crispr_VmStack {
 	Crispr_VM* _Atomic volatile vm; //parent VM context
-	Crispr_Stack* _Atomic volatile next; //sibling stack
-	Crispr_Stack* _Atomic volatile * _Atomic volatile from; //pointer from previous stack
+	Crispr_VmStack* _Atomic volatile next; //sibling stack
+	Crispr_VmStack* _Atomic volatile * _Atomic volatile from; //pointer from previous stack
 	const Crispr_VmCodeSeg* base_seg; //stack call segment in namespace
 	const Crispr_VmCodeSeg* cur_seg; //current call segment in code
 	Crispr_Size ip; //code offset
@@ -80,7 +80,7 @@ struct _Crispr_Stack {
 };
 
 #ifdef __GNUC__
- #pragma GCC poison _Crispr_Stack
+ #pragma GCC poison _Crispr_VmStack
 #endif
 
 #define CRISPR_VMFL_ZF 0x01 //zero flag
@@ -91,7 +91,7 @@ struct _Crispr_Stack {
 #define CRISPR_VMFL_DF 0x20 //direction flag
 #define CRISPR_VMFL_BF 0x40 //interrupt flag
 
-DLL_PUBLIC bool Crispr_vmStackInit(Crispr_Stack* restrict stack, Crispr_Size init,
+DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm, Crispr_Size init,
 		Crispr_Size len, Crispr_Errno* restrict err);
 
 DLL_PUBLIC bool Crispr_vmInit(Crispr_VM* vm, const Crispr_VmNameSpace* ns, Crispr_Errno* err);
@@ -157,7 +157,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMOF_CUR, //instruction pointer offset
 } Crispr_VmOf; //runs with flag offset
 
-DLL_PUBLIC bool Crispr_vmRun(Crispr_Stack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
 
 #pragma pop_macro("ENUM_PACK")
 
