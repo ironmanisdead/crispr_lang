@@ -16,7 +16,7 @@ typedef union {
 	Crispr_S64 slong; //signed long
 	Crispr_U64 ulong; //unsigned long
 	Crispr_Size size; //size type
-	Crispr_Size lf; //offset type
+	Crispr_Ssize off; //offset type
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
 	char* ptr; //pointer to memory
@@ -131,7 +131,8 @@ typedef enum ENUM_PACK {
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
 typedef enum ENUM_PACK {
-	CRISPR_VMSZ_NONE, //do not dereference pointer (internal)
+	CRISPR_VMSZ_NPTR, //void pointer (internal)
+	CRISPR_VMSZ_NSIZ, //offset parameter type (internal)
 	CRISPR_VMSZ_BYTE, //byte-sized
 	CRISPR_VMSZ_SHRT, //short-int sized
 	CRISPR_VMSZ_INTG, //integer sized

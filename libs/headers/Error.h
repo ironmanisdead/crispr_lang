@@ -84,6 +84,7 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp);
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_SYS;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_RESOURCE;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_INVAL;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_REF;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_SYMBOL;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_BADPTR;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_NULL;
@@ -112,6 +113,7 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_AGAIN;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_API;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYN;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYMREF;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_OP;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
 
@@ -120,6 +122,7 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
 #define CRISPR_ERR_RESOURCE &_Crispr_cn_ERR_RESOURCE //System resource error.
 #define CRISPR_ERR_INVAL &_Crispr_cn_ERR_INVAL //Invalid parameter passed to function.
 #define CRISPR_ERR_SYMBOL &_Crispr_cn_ERR_SYMBOL //Invalid name for a variable
+#define CRISPR_ERR_REF &_Crispr_cn_ERR_REF //Reference error
 #define CRISPR_ERR_BADPTR &_Crispr_cn_ERR_BADPTR //Invalid pointer was not expected in operation.
 #define CRISPR_ERR_NULL &_Crispr_cn_ERR_NULL //Null parameter was not expected in function.
 #define CRISPR_ERR_FAULT &_Crispr_cn_ERR_FAULT //Segmentation fault in userspace.
@@ -147,6 +150,7 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
 #define CRISPR_ERR_VM &_Crispr_cn_ERR_VM //VM instruction execution error
 #define CRISPR_ERR_VM_API &_Crispr_cn_ERR_VM_API //VM api function error
 #define CRISPR_ERR_VM_SYN &_Crispr_cn_ERR_VM_SYN //VM syntax error
+#define CRISPR_ERR_VM_SYMREF &_Crispr_cn_ERR_VM_SYMREF //VM symbol error
 #define CRISPR_ERR_VM_OP &_Crispr_cn_ERR_VM_OP //VM invalid operand
 #define CRISPR_ERR_VM_ARG &_Crispr_cn_ERR_VM_ARG //VM invalid argument
 

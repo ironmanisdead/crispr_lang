@@ -98,7 +98,8 @@ _Crispr_makeErrType(PTR, "Pointer error");
 _Crispr_makeErrType(INVAL, "Invalid value error.");
 _Crispr_makeErrBase(invalid, CRISPR_ERR_INVAL);
 _Crispr_makeErrFull(SYMBOL, "Error in converting string to valid symbol.", invalid);
-_Crispr_makeErrBase(invalid_pointer, CRISPR_ERR_INVAL, CRISPR_ERR_BADPTR);
+_Crispr_makeErrType(REF, "Reference error");
+_Crispr_makeErrBase(invalid_pointer, CRISPR_ERR_INVAL, CRISPR_ERR_BADPTR, CRISPR_ERR_REF);
 _Crispr_makeErrFull(BADPTR, "Operation was given an invalid pointer, when it needed a valid address.", invalid_pointer);
 _Crispr_makeErrBase(badptr, CRISPR_ERR_BADPTR);
 _Crispr_makeErrFull(NULL, "Null pointer given for operation, when operation needed a valid address.", badptr);
@@ -137,5 +138,14 @@ _Crispr_makeErrFull(AGAIN, "Operation could not be preformed at this time.", cha
 _Crispr_makeErrFull(ACCESS, "Operation cannot access object", object);
 _Crispr_makeErrBase(access, CRISPR_ERR_ACCESS);
 _Crispr_makeErrFull(PERM, "Operation does not have adequate permissions to use object.", access);
+
+_Crispr_makeErrFull(VM, "VM interpreter error", object);
+_Crispr_makeErrBase(vm_syntax, CRISPR_ERR_VM, CRISPR_ERR_SYMBOL);
+_Crispr_makeErrFull(VM_SYN, "VM invalid instruction error", vm_syntax);
+_Crispr_makeErrBase(vm_syn, CRISPR_ERR_VM_SYN);
+_Crispr_makeErrFull(VM_OP, "Invalid operator in VM", vm_syn);
+_Crispr_makeErrFull(VM_ARG, "Invalid operand in VM", vm_syn);
+_Crispr_makeErrBase(vm_symref, CRISPR_ERR_VM, CRISPR_ERR_REF);
+_Crispr_makeErrFull(VM_SYMREF, "Symbol reference error", vm_symref);
 
 DLL_RESTORE

@@ -75,7 +75,7 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 	switch (*(Crispr_VmOf*)&stack->cur_seg[stack->ip]) {
 		case CRISPR_VMOF_MEM:
 			stack->ip += sizeof(Crispr_VmOf);
-			if (!crispr_vm_getWord(res, stack, CRISPR_VMSZ_NONE, err))
+			if (!crispr_vm_getWord(res, stack, CRISPR_VMSZ_NPTR, err))
 				return false;
 			break;
 		case CRISPR_VMOF_COD:
@@ -95,10 +95,10 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 			return false;
 	}
 	Crispr_VmWord off;
-	if (!crispr_vm_getWord(&off, stack, CRISPR_VMSZ_NONE, err))
+	if (!crispr_vm_getWord(&off, stack, CRISPR_VMSZ_NSIZ, err))
 		return false;
 	Crispr_VmWord mult;
-	if (!crispr_vm_getWord(&mult, stack, CRISPR_VMSZ_NONE, err))
+	if (!crispr_vm_getWord(&mult, stack, CRISPR_VMSZ_NSIZ, err))
 		return false;
 	res->ptr += (off.off * mult.off);
 	return true;
@@ -106,14 +106,17 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 
 static bool crispr_vm_setWord(Crispr_VmWord* restrict dst, const Crispr_VmWord* restrict src, Crispr_VmSz size, Crispr_Errno* err) {
 	switch (size) {
-		case CRISPR_VMSZ_NONE:
+		case CRISPR_VMSZ_NPTR:
 			dst->ptr = src->ptr;
+			break;
+		case CRISPR_VMSZ_NSIZ:
+			dst->size = src->size;
 			break;
 		case CRISPR_VMSZ_WORD:
 			*dst = *src;
 			break;
 		case CRISPR_VMSZ_SIZE:
-			dst->usize = src->usize;
+			dst->size = src->size;
 			break;
 		case CRISPR_VMSZ_PNTR:
 			dst->ptr = src->ptr;
@@ -135,7 +138,13 @@ static bool crispr_vm_setWord(Crispr_VmWord* restrict dst, const Crispr_VmWord* 
 			break;
 		case CRISPR_VMSZ_DUBL:
 			dst->dbl = src->dbl;
+			break;
+		default:
+			if (err)
+				*err = CRISPR_ERR_VM_ARG;
+			return false;
 	}
+	return true;
 }
 
 static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restrict stack, Crispr_VmSz size,
@@ -149,7 +158,7 @@ static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restr
 			stack->ip += sizeof(Crispr_VmWord);
 			return true;
 		case CRISPR_VMLD_OFF:
-			if (size == CRISPR_VMSZ_NONE) {
+			if ((size == CRISPR_VMSZ_NPTR) || (size == CRISPR_VMSZ_NSIZ)) {
 				if (err)
 					*err = CRISPR_ERR_VM_ARG;
 				return false;
