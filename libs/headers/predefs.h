@@ -14,6 +14,8 @@
  #endif
 #else
  #include <stddef.h>
+ typedef size_t Crispr_Size;
+ typedef ptrdiff_t Crispr_Ssize;
 #endif
 #ifndef __bool_true_false_are_defined
  #include <stdbool.h>

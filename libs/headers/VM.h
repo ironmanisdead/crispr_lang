@@ -9,13 +9,14 @@ typedef struct _Crispr_VmStack Crispr_VmStack;
 typedef union {
 	Crispr_Schar sbyte; //signed byte
 	Crispr_Uchar ubyte; //unsigned byte
-	short smore; //signed short
-	Crispr_Ushort umore; //unsigned short
+	short sshrt; //signed short
+	Crispr_Ushort ushrt; //unsigned short
 	int sint; //signed int
 	Crispr_Uint uint; //unsigned int
 	Crispr_S64 slong; //signed long
 	Crispr_U64 ulong; //unsigned long
-	Crispr_Size off; //offset type
+	Crispr_Size size; //size type
+	Crispr_Size lf; //offset type
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
 	char* ptr; //pointer to memory
@@ -106,8 +107,8 @@ DLL_PUBLIC bool Crispr_vmInit(Crispr_VM* vm, const Crispr_VmNameSpace* ns, Crisp
 typedef enum ENUM_PACK {
 	CRISPR_VMOP_NOOP, //NO-op: read until next instruction
 	CRISPR_VMOP_LOCK, //lock: make sure next instruction is not executed with any other locked instructions
-	CRISPR_VMOP_HALT, //halt: stop interpreting instructions from this code
-	CRISPR_VMOP_STOP, //stop: interrupt interpreting instructions from this code
+	CRISPR_VMOP_STOP, //stop: defer execution of this code until Crispr_vmRun is called on it again
+	CRISPR_VMOP_HALT, //halt: prevent this code from running any more
 	CRISPR_VMOP_MOVE, //move: move one thing into another
 	CRISPR_VMOP_POSI, //position: get effective address of offset
 	CRISPR_VMOP_XCHG, //exchange: swap two values
@@ -130,13 +131,16 @@ typedef enum ENUM_PACK {
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
 typedef enum ENUM_PACK {
+	CRISPR_VMSZ_NONE, //do not dereference pointer (internal)
 	CRISPR_VMSZ_BYTE, //byte-sized
 	CRISPR_VMSZ_SHRT, //short-int sized
 	CRISPR_VMSZ_INTG, //integer sized
+	CRISPR_VMSZ_LONG, //long long int sized
 	CRISPR_VMSZ_FLOT, //single-precision float sized
 	CRISPR_VMSZ_DUBL, //double precision float sized
 	CRISPR_VMSZ_SIZE, //size-type sized
 	CRISPR_VMSZ_PNTR, //pointer-sized
+	CRISPR_VMSZ_WORD, //size as one word
 } Crispr_VmSz; //VmSz describes operand size for certain operations
 
 typedef enum ENUM_PACK {
