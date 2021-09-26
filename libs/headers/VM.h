@@ -56,16 +56,16 @@ typedef struct {
 
 typedef struct {
 	mtx_t lock; //locks the VM when a stack is using it
-	Crispr_VmStack* _Atomic volatile stack; //pointer to the first loaded stack
+	Crispr_VmStack* stack; //pointer to the first loaded stack
 	Crispr_VmReg regs; //VM-global registers
 	short flags; //flags register
 	const Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
 } Crispr_VM;
 
 struct _Crispr_VmStack {
-	Crispr_VM* _Atomic volatile vm; //parent VM context
-	Crispr_VmStack* _Atomic volatile next; //sibling stack
-	Crispr_VmStack* _Atomic volatile * _Atomic volatile from; //pointer from previous stack
+	Crispr_VM* vm; //parent VM context
+	Crispr_VmStack* next; //sibling stack
+	Crispr_VmStack** from; //pointer from previous stack
 	const Crispr_VmCodeSeg* base_seg; //stack call segment in namespace
 	const Crispr_VmCodeSeg* cur_seg; //current call segment in code
 	Crispr_Size ip; //code offset

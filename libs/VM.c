@@ -21,8 +21,15 @@ DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm
 			*err = CRISPR_ERR_SYS;
 		return false;
 	}
+	Crispr_VmStack** stk = &vm->stack;
+	while (*stk != Crispr_nullRef(Crispr_VmStack))
+		stk = &(*stk)->next;
+	stack->from = stk;
+	stack->next = Crispr_nullRef(Crispr_VmStack);
 	stack->len = len;
 	stack->ip = init;
+	stack->frame = 0;
+	stack->end = 0;
 	mtx_unlock(&vm->lock);
 	return true;
 }

@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <threads.h>
 #include <stdatomic.h>
+#include <stdint.h>
 
 DLL_HIDE
 
@@ -76,6 +77,14 @@ DLL_PUBLIC void* Crispr_memmove(void* dest, const void* src, Crispr_Size size) {
 	void* mem = memmove(dest, src, size);
 	mtx_unlock(&crispr_memmutex);
 	return mem;
+}
+
+DLL_PUBLIC void* Crispr_nextVarPtr(void* ptr, Crispr_Size align) {
+	uintptr_t ch = (uintptr_t)ptr;
+	uintptr_t calc = (ch / align) * align;
+	if (calc < ch)
+		calc += align;
+	return (void*)calc;
 }
 
 DLL_RESTORE
