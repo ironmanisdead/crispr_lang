@@ -79,12 +79,22 @@ DLL_PUBLIC void* Crispr_memmove(void* dest, const void* src, Crispr_Size size) {
 	return mem;
 }
 
-DLL_PUBLIC void* Crispr_nextVarPtr(void* ptr, Crispr_Size align) {
+DLL_PUBLIC void* Crispr_nextVarPtr(const void* ptr, Crispr_Size align) {
 	uintptr_t ch = (uintptr_t)ptr;
 	uintptr_t calc = (ch / align) * align;
 	if (calc < ch)
 		calc += align;
 	return (void*)calc;
+}
+
+DLL_PUBLIC Crispr_Size Crispr_nextVarBase(const void* base, Crispr_Size off, Crispr_Size align) {
+	uintptr_t start = (uintptr_t)base;
+	uintptr_t addr = start + off;
+	uintptr_t calc = (addr / align) * align;
+	if (calc < addr) {
+		calc += align;
+	}
+	return calc - start;
 }
 
 DLL_RESTORE

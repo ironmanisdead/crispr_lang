@@ -1,21 +1,22 @@
 #pragma once
+//Crispr_Size is a size type (unsigned), and Crispr_Off is an offset type (signed size type)
 #if (defined __SIZE_TYPE__) && (defined __SIZEOF_SIZE_T__)
  typedef __SIZE_TYPE__ Crispr_Size;
  #if (__SIZEOF_SIZE_T__ == 1)
-  typedef signed char Crispr_Ssize;
+  typedef signed char Crispr_Off;
  #elif (__SIZEOF_SIZE_T__ == 2)
-  typedef short Crispr_Ssize;
+  typedef short Crispr_Off;
  #elif (__SIZEOF_SIZE_T__ == 4)
-  typedef long Crispr_Ssize;
+  typedef long Crispr_Off;
  #elif (__SIZEOF_SIZE_T__ == 8)
-  typedef long long Crispr_Ssize;
+  typedef long long Crispr_Off;
  #else
   #error unknown compiler size types
  #endif
 #else
  #include <stddef.h>
  typedef size_t Crispr_Size;
- typedef ptrdiff_t Crispr_Ssize;
+ typedef ptrdiff_t Crispr_Off;
 #endif
 #ifndef __bool_true_false_are_defined
  #include <stdbool.h>

@@ -16,7 +16,7 @@ typedef union {
 	Crispr_S64 slong; //signed long
 	Crispr_U64 ulong; //unsigned long
 	Crispr_Size size; //size type
-	Crispr_Ssize off; //offset type
+	Crispr_Off off; //offset type
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
 	char* ptr; //pointer to memory
