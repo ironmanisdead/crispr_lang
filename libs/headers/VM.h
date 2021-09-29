@@ -97,14 +97,7 @@ DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm
 
 DLL_PUBLIC bool Crispr_vmInit(Crispr_VM* vm, const Crispr_VmNameSpace* ns, Crispr_Errno* err);
 
-#pragma push_macro("ENUM_PACK")
-#ifdef __GNUC__
- #define ENUM_PACK __attribute__ ((__packed__))
-#else
- #define ENUM_PACK
-#endif
-
-typedef enum ENUM_PACK {
+typedef enum Dll_Enum {
 	CRISPR_VMOP_NOOP, //NO-op: read until next instruction
 	CRISPR_VMOP_LOCK, //lock: make sure next instruction is not executed with any other locked instructions
 	CRISPR_VMOP_STOP, //stop: defer execution of this code until Crispr_vmRun is called on it again
@@ -130,7 +123,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMOP_RET, //returns from function
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
-typedef enum ENUM_PACK {
+typedef enum Dll_Enum {
 	CRISPR_VMSZ_NPTR, //void pointer (internal)
 	CRISPR_VMSZ_NSIZ, //offset parameter type (internal)
 	CRISPR_VMSZ_BYTE, //byte-sized
@@ -144,7 +137,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMSZ_WORD, //size as one word
 } Crispr_VmSz; //VmSz describes operand size for certain operations
 
-typedef enum ENUM_PACK {
+typedef enum Dll_Enum {
 	CRISPR_VMLD_LIT, //literal value
 	CRISPR_VMLD_OFF, //load offset
 	CRISPR_VMLD_FLG, //load flag
@@ -153,7 +146,7 @@ typedef enum ENUM_PACK {
 	CRISPR_VMLD_REG_IM, //intermediate-value register
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
-typedef enum ENUM_PACK {
+typedef enum Dll_Enum {
 	CRISPR_VMOF_MEM, //memory offset
 	CRISPR_VMOF_STK, //stack offset
 	CRISPR_VMOF_SYM, //symbol offset
@@ -163,7 +156,5 @@ typedef enum ENUM_PACK {
 } Crispr_VmOf; //runs with flag offset
 
 DLL_PUBLIC bool Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
-
-#pragma pop_macro("ENUM_PACK")
 
 DLL_RESTORE

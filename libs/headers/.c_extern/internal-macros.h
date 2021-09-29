@@ -85,6 +85,15 @@
 #else
  #define Dll_NonNull(...)
 #endif
+#ifdef DLL_CC_GCC
+ #define Dll_Pack(decl) decl __attribute__ ((packed))
+ #define Dll_Enum __attribute__ ((packed))
+#elif defined DLL_OS_WINDOWS
+ #define Dll_Pack(decl) __pragma(pack(push, 1)) decl __pragma(pack(pop))
+ #define Dll_Enum
+#else
+ #error non-Windows OS not compatible with GNUC
+#endif
 #ifndef Utils_offset
  #define Utils_offset(type, field) ((decltype(sizeof 0))(&((type*)0)->field))
 #endif
