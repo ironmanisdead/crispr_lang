@@ -16,13 +16,13 @@ struct _Crispr_Error {
 	const Crispr_Errno* restrict bases;
 };
 
-DLL_PUBLIC NONNULL(1, 2) char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc,
+DLL_PUBLIC Dll_NonNull(1, 2) char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc,
 		Crispr_Errno* restrict err);
 
-DLL_PUBLIC NONNULL(1) bool _Crispr_errSet(Crispr_Error* restrict dest, struct _Crispr_ErrData data,
+DLL_PUBLIC Dll_NonNull(1) bool _Crispr_errSet(Crispr_Error* restrict dest, struct _Crispr_ErrData data,
 		const Crispr_Errno* restrict bases, Crispr_Errno* restrict err);
 
-DLL_PUBLIC NONNULL(1) bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* restrict err);
+DLL_PUBLIC Dll_NonNull(1) bool _Crispr_errDynFree(Crispr_Error* restrict obj, Crispr_Errno* restrict err);
 
 #define Crispr_errBaseDef(name, ...) Crispr_Errno crispr_errbaseuser_##name[] = { __VA_ARGS__, Crispr_nullRef(Crispr_Error) }
 

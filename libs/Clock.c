@@ -2,7 +2,7 @@
 #include "headers/Error.h"
 #include "headers/.part/Clock.h"
 #include <time.h>
-#ifdef DLL_OS_windows
+#ifdef DLL_OS_WINDOWS
  #include <realtimeapi.h>
 #endif
 DLL_HIDE
@@ -20,7 +20,7 @@ const Crispr_TimeType _Crispr_cn_TMTYP_CPU = {
 static bool crispr_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERR_NOERR;
-#ifdef DLL_OS_unix
+#ifdef DLL_OS_UNIX
 	struct timespec present;
 	if (clock_gettime(CLOCK_BOOTTIME, &present) != 0) {
 		if (err)
@@ -28,7 +28,7 @@ static bool crispr_clock_tai(Crispr_S64* restrict res, Crispr_Errno* restrict er
 		return false;
 	}
 	*res = (present.tv_sec * CRISPR_TIME_SECOND) + present.tv_nsec;
-#elif defined DLL_OS_windows
+#elif defined DLL_OS_WINDOWS
 	if (!QueryUnbiasedInterruptTime(res)) {
 		if (err)
 			*err = CRISPR_ERR_SYS;

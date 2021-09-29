@@ -1,6 +1,6 @@
 #pragma once
 #include "predefs.h"
-#ifdef DLL_OS_unix
+#ifdef DLL_OS_UNIX
  #include <dirent.h>
 #else
  #include <fileapi.h>
@@ -11,7 +11,7 @@ DLL_HIDE
 typedef struct {
 	char type; //stream, regular, directory, etc.
 	char access; //file open mode (read/write/exec/etc...)
-#ifdef DLL_OS_unix
+#ifdef DLL_OS_UNIX
 	union {
 		int desc;
 		DIR* dir;

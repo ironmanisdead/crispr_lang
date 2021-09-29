@@ -1,7 +1,7 @@
 #include "headers/Timer.h"
 #include "headers/Error.h"
 #include <time.h>
-#ifdef DLL_OS_windows
+#ifdef DLL_OS_WINDOWS
  #include <realtimeapiset.h>
 #endif
 DLL_HIDE

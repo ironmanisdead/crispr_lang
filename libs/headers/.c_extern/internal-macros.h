@@ -2,14 +2,14 @@
 #undef DLL_LOCAL
 #undef DLL_HIDE
 #undef DLL_RESTORE
-#undef DLL_OS_unix
-#undef DLL_OS_windows
-#undef DLL_CC_clang
-#undef DLL_CC_gcc
+#undef DLL_OS_UNIX
+#undef DLL_OS_WINDOWS
+#undef DLL_CC_CLANG
+#undef DLL_CC_GCC
 #if defined(__unix__)
- #define DLL_OS_unix 1
+ #define DLL_OS_UNIX 1
 #elif defined(_MSC_VER)
- #define DLL_OS_windows 1
+ #define DLL_OS_WINDOWS 1
  #if (DLL_EXPORTED > 0)
   #define DLL_PUBLIC __declspec(dllexport)
  #else
@@ -24,10 +24,10 @@
   #define DLL_HIDE
   #define DLL_RESTORE
  #endif
- #ifndef DLL_CC_clang
-  #define DLL_CC_clang 1
+ #ifndef DLL_CC_CLANG
+  #define DLL_CC_CLANG 1
  #endif
- #ifndef DLL_OS_windows
+ #ifndef DLL_OS_WINDOWS
   #define DLL_PUBLIC __attribute__ ((visibility("default")))
   #define DLL_LOCAL __attribute__ ((visibility("hidden")))
  #endif
@@ -35,18 +35,21 @@
 #ifdef __GNUC__
  #define DLL_HIDE _Pragma("GCC visibility push (internal)")
  #define DLL_RESTORE _Pragma("GCC visibility pop")
- #define DLL_CC_gcc 1
- #ifndef DLL_OS_windows
+ #define DLL_CC_GCC 1
+ #ifndef DLL_OS_WINDOWS
   #define DLL_PUBLIC __attribute__ ((visibility("default")))
   #define DLL_LOCAL __attribute__ ((visibility("hidden")))
  #endif
 #else
  #define DLL_HIDE
  #define DLL_RESTORE
- #ifndef DLL_OS_windows
+ #ifndef DLL_OS_WINDOWS
   #define DLL_PUBLIC
   #define DLL_LOCAL
  #endif
+#endif
+#if (defined __cplusplus) && ! (defined RECAST)
+ #define RECAST(type, exp) reinterpret_cast<type>(exp)
 #endif
 #ifndef DEPRECATE
  #if defined (__GNUC__)
@@ -56,29 +59,32 @@
  #endif
 #endif
 #ifdef __cplusplus
- #define INITIALIZER(f, attr) \
- 	static void f(void) attr; \
- 	struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_; \
- 	static void f(void) attr
+	#define Dll_Init(name, attr) \
+		static void name(void) attr; \
+		struct name##_t_ { name##_t_(void) { name(); } }; static name##_t_ name##_; \
+		static void name(void) attr
 #elif defined(_MSC_VER)
- #pragma section(".CRT$XCU",read)
- #define INITIALIZER2_(f, p) \
- 	static void f(void); \
- 	__declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f; \
- 	__pragma(comment(linker,"/include:" p #f "_")) \
- 	static void f(void)
- #ifdef _WIN64
- 	#define INITIALIZER(f) INITIALIZER2_(f, "")
- #else
- 	#define INITIALIZER(f) INITIALIZER2_(f, "_")
- #endif
+	#pragma section(".CRT$XCU",read)
+	#define INITIALIZER2_(name, p, attr) \
+		static void name(void) attr; \
+		__declspec(allocate(".CRT$XCU")) void (*name##_)(void) = name; \
+		__pragma(comment(linker,"/include:" p #name "_")) \
+		static void name(void) attr
+	#ifdef _WIN64
+		#define Dll_Init(name, attr) INITIALIZER2_(name, "", attr)
+	#else
+		#define Dll_Init(name, attr) INITIALIZER2_(name, "_", attr)
+	#endif
 #else
- #define INITIALIZER(f) \
- 	static void f(void) __attribute__((constructor)); \
- 	static void f(void)
+	#define Dll_Init(name, attr) \
+		static void name(void) __attribute__((constructor)) attr; \
+		static void name(void)
 #endif
-#ifdef __GNUC__
- #define NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
+#ifdef DLL_CC_GCC
+ #define Dll_NonNull(...) __attribute__ ((nonnull(__VA_ARGS__)))
 #else
- #define NONNULL(...)
+ #define Dll_NonNull(...)
+#endif
+#ifndef Utils_offset
+ #define Utils_offset(type, field) ((decltype(sizeof 0))(&((type*)0)->field))
 #endif
