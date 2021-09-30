@@ -23,10 +23,10 @@ int main() {
 	const char* stat = Crispr_errName(err);
 	stat = stat ? stat : "Success.";
 	printf("Status: %s\n", stat);
-	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRCHNG)));
-	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERRNOMEM, CRISPR_ERRSYS)));
-	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERRCHNG, CRISPR_ERRTIMEDOUT)));
-	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERRTIMEDOUT, CRISPR_ERRSYS)));
+	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERR_TIMEDOUT, CRISPR_ERR_CHNG)));
+	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERR_NOMEM, CRISPR_ERR_SYS)));
+	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERR_CHNG, CRISPR_ERR_TIMEDOUT)));
+	puts(Crispr_boolStr(Crispr_errIsA(CRISPR_ERR_TIMEDOUT, CRISPR_ERR_SYS)));
 	printf("Sema size: %zd\n", sizeof(Crispr_Sema));
 	printf("SemSched size: %zd\n", sizeof(Crispr_SemSched));
 	printf("Timer size: %zd\n", sizeof(Crispr_Timer));

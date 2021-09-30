@@ -6,8 +6,8 @@ ifneq ($(findstring /$(shell pwd),/$(installabs)),)
  $(error cannot install lib$(current_lib) inside source directory)
 endif
 
-PHON:=libs remake unmake scrape clean reset install uninstall deps
-.PHONY:tests nodep nodown $(PHON)
+PHON:=libs remake update unmake scrape clean reset install uninstall deps
+.PHONY:tests nodep nodown noupdate $(PHON)
 SOURCES:=$(wildcard *.$(C_EXT))
 RULES:=$(patsubst %.$(C_EXT),.%.mk,$(SOURCES))
 OBJECTS:=$(patsubst %.$(C_EXT),%.o,$(SOURCES))
@@ -24,6 +24,10 @@ endif
 libs:
 	.extra/depcheck
 	$(if $(filter nodown,$(MAKECMDGOALS)),,cd libs && make)
+	$(if $(filter noupdate,$(MAKECMDGOALS)),,make update)
+
+update:
+	$(if $(wildcard *.o), make nodown noupdate $(wildcard *.o))
 
 libs/include:
 	cd libs && make include

@@ -32,18 +32,18 @@ DLL_PUBLIC void Crispr_lock_init(Crispr_Lock* restrict obj) {
 
 DLL_PUBLIC bool Crispr_lock_alloc(volatile Crispr_Lock* obj, Crispr_Size size, bool overwrite, Crispr_Errno* restrict err) {
 	if (err)
-		*err = CRISPR_ERRNOERR;
+		*err = CRISPR_ERR_NOERR;
 	char lock = _Crispr_flagGet(obj, false);
 	if ((!overwrite) && (lock != CRISPR_LOCK_NONE)) {
 		if (err)
-			*err = CRISPR_ERRACCESS;
+			*err = CRISPR_ERR_ACCESS;
 		return false;
 	}
 	void* edit = Crispr_malloc(size);
 	if (!edit) {
 		_Crispr_flagSet(obj, lock);
 		if (err)
-			*err = CRISPR_ERRNOMEM;
+			*err = CRISPR_ERR_NOMEM;
 		return false;
 	}
 	if (lock & CRISPR_LOCK_RPTR) {
