@@ -140,12 +140,16 @@ _Crispr_makeErrBase(access, CRISPR_ERR_ACCESS);
 _Crispr_makeErrFull(PERM, "Operation does not have adequate permissions to use object.", access);
 
 _Crispr_makeErrFull(VM, "VM interpreter error", object);
+_Crispr_makeErrBase(vm, CRISPR_ERR_VM);
 _Crispr_makeErrBase(vm_syntax, CRISPR_ERR_VM, CRISPR_ERR_SYMBOL);
 _Crispr_makeErrFull(VM_SYN, "VM invalid instruction error", vm_syntax);
 _Crispr_makeErrBase(vm_syn, CRISPR_ERR_VM_SYN);
 _Crispr_makeErrFull(VM_OP, "Invalid operator in VM", vm_syn);
 _Crispr_makeErrFull(VM_ARG, "Invalid operand in VM", vm_syn);
-_Crispr_makeErrBase(vm_symref, CRISPR_ERR_VM, CRISPR_ERR_REF);
-_Crispr_makeErrFull(VM_SYMREF, "Symbol reference error", vm_symref);
+_Crispr_makeErrFull(VM_SYMREF, "Symbol reference error", vm);
+_Crispr_makeErrBase(vm_symfind, CRISPR_ERR_VM_SYMREF, CRISPR_ERR_REF);
+_Crispr_makeErrFull(VM_SYMFND, "Symbol lookup error in VM", vm_symfind);
+_Crispr_makeErrBase(vm_symvalid, CRISPR_ERR_VM_SYMREF, CRISPR_ERR_SYMBOL);
+_Crispr_makeErrFull(VM_SYMVAL, "Invalid symbol in VM", vm_symvalid);
 
 DLL_RESTORE

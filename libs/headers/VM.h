@@ -114,6 +114,7 @@ typedef enum Dll_Enum {
 	CRISPR_VMOP_SUB, //subtracts two operands from each other
 	CRISPR_VMOP_MUL, //multiplies two operands together
 	CRISPR_VMOP_DIV, //divides two operands by each other
+	CRISPR_VMOP_CONV, //convert: converts one numerical type into another
 	CRISPR_VMOP_SIZE, //re-sizes the stack according to the first operand (Crispr_Size assumed)
 	CRISPR_VMOP_PUSH, //pushes value into stack, and resizes if nessecary
 	CRISPR_VMOP_POP, //pops last pushed value out of stack
