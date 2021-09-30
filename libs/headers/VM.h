@@ -1,5 +1,5 @@
 #pragma once
-#include "predefs.h"
+#include "Loop.h"
 #include <threads.h>
 
 DLL_HIDE
@@ -155,6 +155,6 @@ typedef enum Dll_Enum {
 	CRISPR_VMOF_CUR, //instruction pointer offset
 } Crispr_VmOf; //runs with flag offset
 
-DLL_PUBLIC bool Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
+DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
 
 DLL_RESTORE

@@ -113,9 +113,11 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_AGAIN;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_API;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYN;
-DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYMREF;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_OP;
 DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYMREF;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYMFND;
+DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_SYMVAL;
 
 #define CRISPR_ERR_NOERR ((Crispr_Errno)0) //No error.
 #define CRISPR_ERR_SYS &_Crispr_cn_ERR_SYS //System error.
@@ -150,8 +152,10 @@ DLL_PUBLIC extern const Crispr_Error _Crispr_cn_ERR_VM_ARG;
 #define CRISPR_ERR_VM &_Crispr_cn_ERR_VM //VM instruction execution error
 #define CRISPR_ERR_VM_API &_Crispr_cn_ERR_VM_API //VM api function error
 #define CRISPR_ERR_VM_SYN &_Crispr_cn_ERR_VM_SYN //VM syntax error
-#define CRISPR_ERR_VM_SYMREF &_Crispr_cn_ERR_VM_SYMREF //VM symbol error
 #define CRISPR_ERR_VM_OP &_Crispr_cn_ERR_VM_OP //VM invalid operand
 #define CRISPR_ERR_VM_ARG &_Crispr_cn_ERR_VM_ARG //VM invalid argument
+#define CRISPR_ERR_VM_SYMREF &_Crispr_cn_ERR_VM_SYMREF //VM symbol error
+#define CRISPR_ERR_VM_SYMFND &_Crispr_cn_ERR_VM_SYMFND //VM symbol location error
+#define CRISPR_ERR_VM_SYMVAL &_Crispr_cn_ERR_VM_SYMVAL //Invalid VM symbol error
 
 DLL_RESTORE
