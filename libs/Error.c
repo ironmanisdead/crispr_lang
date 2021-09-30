@@ -1,6 +1,6 @@
 #include "headers/Error.h"
 #include "headers/.part/Error.h"
-#include "headers/Symbol.h"
+#include "headers/String.h"
 
 DLL_HIDE
 
@@ -48,8 +48,8 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 DLL_PUBLIC Dll_NonNull(1, 2) char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc, Crispr_Errno* restrict err) {
 	if (err)
 		*err = CRISPR_ERR_NOERR;
-	Crispr_Size len;
-	if (!Crispr_symLen(&len, name, err))
+	Crispr_Off len = Crispr_symLen(name, err);
+	if (len < 0)
 		return Crispr_nullRef(char);
 	char* result = Crispr_malloc(len + Crispr_strLen(desc) + 2);
 	if (!result) {

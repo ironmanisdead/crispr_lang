@@ -1,7 +1,7 @@
 #include "headers/.part/NameSpace.h"
 #include "headers/Error.h"
 #include "headers/Memory.h"
-#include "headers/Symbol.h"
+#include "headers/String.h"
 
 DLL_HIDE
 
@@ -14,8 +14,8 @@ Crispr_NameSpace* Crispr_nsCreate(const char* restrict name, const Crispr_NsRef*
 			*err = CRISPR_ERR_NULL;
 		return Crispr_nullRef(Crispr_NameSpace);
 	}
-	Crispr_Size len;
-	if (!Crispr_symLen(&len, name, err))
+	Crispr_Off len = Crispr_symLen(name, err);
+	if (len < 0)
 		return false;
 	Crispr_NameSpace* result = Crispr_malloc(sizeof(Crispr_NameSpace) + len);
 	if (single) {
