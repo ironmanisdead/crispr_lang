@@ -81,11 +81,11 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 			break;
 		case CRISPR_VMOF_STK:
 			stack->ip += sizeof(Crispr_VmOf);
-			res->ptr = &stack->origin[stack->ip];
+			res->ptr = stack->origin;
 			break;
 		case CRISPR_VMOF_FRM:
 			stack->ip += sizeof(Crispr_VmOf);
-			res->ptr = &stack->origin[stack->ip + stack->frame];
+			res->ptr = &stack->origin[stack->frame];
 			break;
 		case CRISPR_VMOF_SYM:
 			stack->ip += sizeof(Crispr_VmOf);
