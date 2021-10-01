@@ -2,10 +2,11 @@
 #include "headers/Memory.h"
 #include "headers/Error.h"
 #include "headers/String.h"
+#include <string.h>
 
 DLL_HIDE
 
-#define crispr_realign(type, stack) stack->ip = Crispr_nextBase(type, stack->cur_seg->code, stack->ip)
+#define crispr_realign(type, stack) stack->ip = Crispr_nextBase(type, stack->segc->code, stack->ip)
 
 DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm, Crispr_Size init, Crispr_Size len, Crispr_Errno* err) {
 	if (err)
@@ -53,31 +54,89 @@ DLL_PUBLIC bool Crispr_vmInit(Crispr_VM* restrict vm, const Crispr_VmNameSpace* 
 }
 
 typedef struct {
-	short flags; //holds flag type
+	Crispr_VmFl flags; //holds flag type
+	mtx_t* lock;
 	union {
-		void* ptr;
+		char* ptr;
+		const char* cptr;
 		Crispr_Size off;
 	};
 } Crispr_VmRef;
 
+typedef struct {
+	Crispr_VmCodeSeg* segcent;
+	const char* code;
+} Crispr_VmSym;
+
+typedef struct {
+	Crispr_LoopStat stat;
+	const char* addr;
+} Crispr_VmPtr;
+
+Crispr_VmPtr crispr_vm_symFrom(const char* restrict header, const char* restrict query,
+		Crispr_Errno* restrict err) {
+	Crispr_Off qsize = Crispr_strIter(query, &Crispr_symVm, err);
+	if (qsize < 0)
+		return (Crispr_VmPtr){ CRISPR_LOOP_FAIL, Crispr_nullRef(char) };
+	if (!header)
+		return (Crispr_VmPtr){ CRISPR_LOOP_CONT, Crispr_nullRef(char) };
+	while (true) {
+		if (*header == '\0')
+			return (Crispr_VmPtr){ CRISPR_LOOP_CONT, Crispr_nullRef(char) };
+		Crispr_Off off = Crispr_strIter(header, &Crispr_symVm, err);
+		if (off < 0) {
+			return (Crispr_VmPtr){ CRISPR_LOOP_FAIL, Crispr_nullRef(char) };
+		}
+		bool comp = (memcmp(header, query, off) == 0);
+		header += off + 1;
+		header = Crispr_nextPtr(const char*, header);
+		if (comp)
+			return (Crispr_VmPtr){ CRISPR_LOOP_DONE, *(const char**)(header) };
+		header += sizeof(const char*);
+	}
+}
+
+static Crispr_VmSym crispr_vm_symFind(Crispr_VmCodeSeg* restrict code, const char* restrict query,
+		Crispr_Errno* restrict err) {
+	Crispr_VmCodeSeg* endo;
+	Crispr_VmCodeSeg* cdpt = code;
+	Crispr_VmCodeSeg* prev = code->back;
+	Crispr_VmCodeSeg* next;
+	while (true) {
+		if (cdpt->zero) {
+			next = cdpt->next;
+			break;
+		}
+	}
+}
+
 static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restrict stack, Crispr_VmSz offset,
 		Crispr_Errno* restrict err);
 
-static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restrict stack, Crispr_Errno* restrict err) {
+static bool crispr_vm_offset(Crispr_VmRef* restrict res, Crispr_VmStack* restrict stack, Crispr_Errno* restrict err) {
 	crispr_realign(Crispr_VmOf, stack);
-	switch (*(Crispr_VmOf*)&stack->cur_seg[stack->ip]) {
+	Crispr_VmWord wrd;
+	res->flags = 0;
+	switch (*(Crispr_VmOf*)&stack->segc[stack->ip]) {
+		case CRISPR_VMOF_FLG:
+			stack->ip += sizeof(Crispr_VmOf);
+			crispr_realign(Crispr_VmFl, stack);
+			res->flags = *(Crispr_VmFl*)(&stack->segc->code[stack->ip]);
+			stack->ip += sizeof(Crispr_VmFl);
+			return true;
 		case CRISPR_VMOF_MEM:
 			stack->ip += sizeof(Crispr_VmOf);
-			if (!crispr_vm_getWord(res, stack, CRISPR_VMSZ_NPTR, err))
+			if (!crispr_vm_getWord(&wrd, stack, CRISPR_VMSZ_NPTR, err))
 				return false;
+			res->cptr = wrd.cptr;
 			break;
 		case CRISPR_VMOF_COD:
 			stack->ip += sizeof(Crispr_VmOf);
-			res->cptr = stack->cur_seg->code;
+			res->cptr = stack->segc->code;
 			break;
 		case CRISPR_VMOF_CUR:
 			stack->ip += sizeof(Crispr_VmOf);
-			res->cptr = &stack->cur_seg->code[stack->ip];
+			res->cptr = &stack->segc->code[stack->ip];
 			break;
 		case CRISPR_VMOF_STK:
 			stack->ip += sizeof(Crispr_VmOf);
@@ -89,8 +148,8 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 			break;
 		case CRISPR_VMOF_SYM:
 			stack->ip += sizeof(Crispr_VmOf);
-			Crispr_Off off = Crispr_strIter(&stack->cur_seg->code[stack->ip], &Crispr_symVm, err);
-			if (off < 0) {
+			Crispr_Off calc = Crispr_strIter(&stack->segc->code[stack->ip], &Crispr_symVm, err);
+			if (calc < 0) {
 				if (err)
 					*err = CRISPR_ERR_VM_SYMVAL;
 				return false;
@@ -109,7 +168,7 @@ static bool crispr_vm_offset(Crispr_VmWord* restrict res, Crispr_VmStack* restri
 	Crispr_VmWord mult;
 	if (!crispr_vm_getWord(&mult, stack, CRISPR_VMSZ_NSIZ, err))
 		return false;
-	res->ptr += (off.off * mult.off);
+	res->cptr += (off.off * mult.off);
 	return true;
 }
 
@@ -159,11 +218,11 @@ static bool crispr_vm_setWord(Crispr_VmWord* restrict dst, const Crispr_VmWord* 
 static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restrict stack, Crispr_VmSz size,
 		Crispr_Errno* restrict err) {
 	crispr_realign(Crispr_VmLd, stack);
-	switch (*(Crispr_VmLd*)&stack->cur_seg->code[stack->ip]) {
+	switch (*(Crispr_VmLd*)&stack->segc->code[stack->ip]) {
 		case CRISPR_VMLD_LIT:
 			stack->ip += sizeof(Crispr_VmLd);
 			crispr_realign(Crispr_VmWord, stack);
-			*wrd = *(Crispr_VmWord*)(&stack->cur_seg->code[stack->ip]);
+			*wrd = *(Crispr_VmWord*)(&stack->segc->code[stack->ip]);
 			stack->ip += sizeof(Crispr_VmWord);
 			return true;
 		case CRISPR_VMLD_OFF:
@@ -173,7 +232,7 @@ static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restr
 				return false;
 			}
 			stack->ip += sizeof(Crispr_VmLd);
-			Crispr_VmWord wrd;
+			Crispr_VmRef wrd;
 			if (!crispr_vm_offset(&wrd, stack, err))
 				return false;
 	}
@@ -182,21 +241,11 @@ static bool crispr_vm_getWord(Crispr_VmWord* restrict wrd, Crispr_VmStack* restr
 
 static bool crispr_vm_getRef(Crispr_VmRef* restrict ref, Crispr_VmStack* restrict stack, Crispr_Errno* restrict err) {
 	crispr_realign(Crispr_VmLd, stack);
-	switch (*(Crispr_VmLd*)&stack->cur_seg->code[stack->ip]) {
+	switch (*(Crispr_VmLd*)&stack->segc->code[stack->ip]) {
 		case CRISPR_VMLD_LIT:
 			if (err)
 				*err = CRISPR_ERR_VM_OP;
 			return false;
-		case CRISPR_VMLD_FLG:
-			stack->ip += sizeof(Crispr_VmLd);
-			crispr_realign(short, stack);
-			ref->flags = *(short*)&stack->cur_seg->code[stack->ip];
-			if (!ref->flags) {
-				if (err)
-					*err = CRISPR_ERR_VM_OP;
-				return false;
-			}
-			break;
 	}
 	return true;
 }
@@ -208,7 +257,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_S
 		crispr_realign(Crispr_VmOp, stack);
 		Crispr_VmRef ref;
 		Crispr_VmWord word;
-		switch (*(Crispr_VmOp*)&stack->cur_seg->code[stack->ip]) {
+		switch (*(Crispr_VmOp*)&stack->segc->code[stack->ip]) {
 			case CRISPR_VMOP_NOOP:
 				stack->ip += sizeof(Crispr_VmOp);
 				break;
@@ -220,7 +269,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_S
 			case CRISPR_VMOP_MOVE:
 				stack->ip += sizeof(Crispr_VmOp);
 				crispr_realign(Crispr_VmSz, stack);
-				Crispr_VmSz size = *(Crispr_VmSz*)&stack->cur_seg->code[stack->ip];
+				Crispr_VmSz size = *(Crispr_VmSz*)&stack->segc->code[stack->ip];
 				stack->ip += sizeof(Crispr_VmSz);
 				if (!crispr_vm_getRef(&ref, stack, err))
 					return CRISPR_LOOP_FAIL;

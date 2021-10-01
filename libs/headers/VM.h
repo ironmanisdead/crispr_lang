@@ -15,8 +15,8 @@ typedef union {
 	Crispr_Uint uint; //unsigned int
 	Crispr_S64 slong; //signed long
 	Crispr_U64 ulong; //unsigned long
-	Crispr_Size size; //size type
-	Crispr_Off off; //offset type
+	Crispr_Size size; //memory size type (unsigned)
+	Crispr_Off off; //memory offset type (signed)
 	float flt; //single-precision float type
 	double dbl; //double-precision float type
 	char* ptr; //pointer to memory
@@ -33,15 +33,17 @@ typedef struct _Crispr_VmFixObj {
 
 typedef struct _Crispr_VmCodeSeg {
 	Crispr_Uint ver; //Symbol version information
-	Crispr_Size len; //Code length information (zero if C library)
-	const char* code; //Code pointer
-	const char* sym; //Symbol header information
+	Crispr_Size len; //Code length information (zero if C code)
+	const char* code; //Segment base pointer
+	const char* sym; //Symbol header
 	struct _Crispr_VmCodeSeg* next; //next code segment
+	struct _Crispr_VmCodeSeg* back; //first code segment in version (unset if start of version)
+	struct _Crispr_VmCodeSeg* zero; //Starting code segment (set if end of version)
 } Crispr_VmCodeSeg;
 
 typedef struct _Crispr_VmNameSpace {
 	Crispr_Uint id; //namespace id/descriptor
-	Crispr_VmCodeSeg* base; //base codeseg
+	Crispr_VmCodeSeg* base; //base (lowest version) codeseg for namespace
 	struct _Crispr_VmNameSpace* next; //next namespace
 } Crispr_VmNameSpace;
 
@@ -67,8 +69,7 @@ struct _Crispr_VmStack {
 	Crispr_VM* vm; //parent VM context
 	Crispr_VmStack* next; //sibling stack
 	Crispr_VmStack** from; //pointer from previous stack
-	const Crispr_VmCodeSeg* base_seg; //stack call segment in namespace
-	const Crispr_VmCodeSeg* cur_seg; //current call segment in code
+	const Crispr_VmCodeSeg* segc; //current code segment
 	Crispr_Size ip; //code offset
 	Crispr_VmReg cal; //caller-save registers
 	Crispr_VmReg imm; //immediate registers
@@ -91,6 +92,7 @@ struct _Crispr_VmStack {
 #define CRISPR_VMFL_PF 0x10 //parity flag
 #define CRISPR_VMFL_DF 0x20 //direction flag
 #define CRISPR_VMFL_BF 0x40 //interrupt flag
+typedef short Crispr_VmFl;
 
 DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm, Crispr_Size init,
 		Crispr_Size len, Crispr_Errno* restrict err);
@@ -141,7 +143,6 @@ typedef enum Dll_Enum {
 typedef enum Dll_Enum {
 	CRISPR_VMLD_LIT, //literal value
 	CRISPR_VMLD_OFF, //load offset
-	CRISPR_VMLD_FLG, //load flag
 	CRISPR_VMLD_REG_VM, //VM global register
 	CRISPR_VMLD_REG_RA, //caller-save register
 	CRISPR_VMLD_REG_IM, //intermediate-value register
@@ -154,7 +155,8 @@ typedef enum Dll_Enum {
 	CRISPR_VMOF_FRM, //frame offset
 	CRISPR_VMOF_COD, //code pointer offset
 	CRISPR_VMOF_CUR, //instruction pointer offset
-} Crispr_VmOf; //runs with flag offset
+	CRISPR_VMOF_FLG, //flag descriptor
+} Crispr_VmOf; //VmOf describes an offset type
 
 DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
 

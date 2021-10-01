@@ -21,7 +21,7 @@ DLL_PUBLIC Crispr_Size Crispr_strCpy(char* restrict dst, const char* restrict sr
 }
 
 DLL_PUBLIC Crispr_Off Crispr_strIter(const char* restrict str, Crispr_LoopStr loop, Crispr_Errno* restrict err) {
-	Crispr_Size len = 0;
+	Crispr_Off len = 0;
 	if (err)
 		*err = CRISPR_ERR_NOERR;
 start:
@@ -29,7 +29,11 @@ start:
 		case CRISPR_LOOP_FAIL:
 			return ~len;
 		case CRISPR_LOOP_CONT:
-			len++;
+			if (++len < 0) {
+				if (err)
+					*err = CRISPR_ERR_RANGE;
+				return len;
+			}
 			goto start;
 		case CRISPR_LOOP_DONE:
 			return len;
