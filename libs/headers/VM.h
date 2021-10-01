@@ -124,7 +124,17 @@ typedef enum Dll_Enum {
 	CRISPR_VMOP_JMP, //jumps with more conditions specified
 	CRISPR_VMOP_CALL, //calls another function
 	CRISPR_VMOP_RET, //returns from function
+	CRISPR_VMOP_HOP_G, //VM global heap operation
+	CRISPR_VMOP_HOP_L, //VM local heap operation
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
+
+typedef enum Dll_Enum {
+	CRISPR_VMHOP_NEW, //insert new object in heap (Off, Alignment)
+	CRISPR_VMHOP_DEL, //deallocate object in heap
+	CRISPR_VMHOP_CHG, //move over certain amount of allocations (Off)
+	CRISPR_VMHOP_SET, //move certain amount of allocations from base pointer (Off)
+	CRISPR_VMHOP_SIZ, //resize heap object (can cause object displacement) (Size)
+} Crispr_VmHop;
 
 typedef enum Dll_Enum {
 	CRISPR_VMSZ_NPTR, //void pointer (internal)
@@ -150,6 +160,8 @@ typedef enum Dll_Enum {
 
 typedef enum Dll_Enum {
 	CRISPR_VMOF_MEM, //memory offset
+	CRISPR_VMOF_GHE, //global heap current object offset
+	CRISPR_VMOF_LHE, //local heap current object offset
 	CRISPR_VMOF_STK, //stack offset
 	CRISPR_VMOF_SYM, //symbol offset
 	CRISPR_VMOF_FRM, //frame offset
