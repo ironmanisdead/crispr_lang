@@ -24,6 +24,28 @@ typedef union {
 	bool (*api)(const Crispr_VmStack*); //make api call
 } Crispr_VmWord;
 
+typedef enum {
+	CRISPR_VMSZ_NONE, //invalid/void
+	CRISPR_VMSZ_BYTE, //byte-sized
+	CRISPR_VMSZ_SHRT, //short
+	CRISPR_VMSZ_INTG,
+	CRISPR_VMSZ_LONG,
+	CRISPR_VMSZ_FLOT,
+	CRISPR_VMSZ_DUBL,
+	CRISPR_VMSZ_SIZE,
+	CRISPR_VMSZ_WORD, //full sized (only for pointers)
+} Crispr_VmSz;
+
+#define CRISPR_VMTY_PNTR 0x8000
+#define CRISPR_VMTY_SIGN 0x4000
+
+typedef Crispr_Ushort Crispr_VmTy;
+
+typedef struct {
+	Crispr_VmTy type;
+	Crispr_VmWord data;
+} Crispr_VmReg;
+
 typedef struct _Crispr_VmFixObj {
 	mtx_t airlock; //locks access to next Fixed object
 	Crispr_Size len; //holds allocation size
@@ -54,13 +76,13 @@ typedef struct _Crispr_VmNameSpace {
 #endif
 
 typedef struct {
-	Crispr_VmWord regs[6]; //register set
-} Crispr_VmReg; //register set for VM
+	Crispr_VmReg regs[6]; //register set
+} Crispr_VmRSet; //register set for VM
 
 typedef struct {
 	mtx_t lock; //locks the VM when a stack is using it
 	Crispr_VmStack* stack; //pointer to the first loaded stack
-	Crispr_VmReg regs; //VM-global registers
+	Crispr_VmRSet regs; //VM-global registers
 	short flags; //flags register
 	const Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
 } Crispr_VM;
@@ -71,8 +93,8 @@ struct _Crispr_VmStack {
 	Crispr_VmStack** from; //pointer from previous stack
 	const Crispr_VmCodeSeg* segc; //current code segment
 	Crispr_Size ip; //code offset
-	Crispr_VmReg cal; //caller-save registers
-	Crispr_VmReg imm; //immediate registers
+	Crispr_VmRSet cal; //caller-save registers
+	Crispr_VmRSet imm; //immediate registers
 	mtx_t lock; //used for non-owner to read/write, and for owner to reallocate
 	Crispr_Size len; //current allocated length of stack
 	char* origin; //stack origin
@@ -92,6 +114,7 @@ struct _Crispr_VmStack {
 #define CRISPR_VMFL_PF 0x10 //parity flag
 #define CRISPR_VMFL_DF 0x20 //direction flag
 #define CRISPR_VMFL_BF 0x40 //interrupt flag
+#define CRISPR_VMFL_HF 0x80 //heap flag
 typedef short Crispr_VmFl;
 
 DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStack* restrict stack, Crispr_VM* vm, Crispr_Size init,
@@ -124,11 +147,13 @@ typedef enum Dll_Enum {
 	CRISPR_VMOP_JMP, //jumps with more conditions specified
 	CRISPR_VMOP_CALL, //calls another function
 	CRISPR_VMOP_RET, //returns from function
-	CRISPR_VMOP_HOP_G, //VM global heap operation
-	CRISPR_VMOP_HOP_L, //VM local heap operation
+	CRISPR_VMOP_HOP, //heap operation
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
 typedef enum Dll_Enum {
+	CRISPR_VMHOP_FLP, //change from global to local, and vice verse
+	CRISPR_VMHOP_GLO, //change heap to global
+	CRISPR_VMHOP_LOC, //change heap to local
 	CRISPR_VMHOP_NEW, //insert new object in heap (Off, Alignment)
 	CRISPR_VMHOP_DEL, //deallocate object in heap
 	CRISPR_VMHOP_CHG, //move over certain amount of allocations (Off)
@@ -137,37 +162,20 @@ typedef enum Dll_Enum {
 } Crispr_VmHop;
 
 typedef enum Dll_Enum {
-	CRISPR_VMSZ_NPTR, //void pointer (internal)
-	CRISPR_VMSZ_NSIZ, //offset parameter type (internal)
-	CRISPR_VMSZ_BYTE, //byte-sized
-	CRISPR_VMSZ_SHRT, //short-int sized
-	CRISPR_VMSZ_INTG, //integer sized
-	CRISPR_VMSZ_LONG, //long long int sized
-	CRISPR_VMSZ_FLOT, //single-precision float sized
-	CRISPR_VMSZ_DUBL, //double precision float sized
-	CRISPR_VMSZ_SIZE, //size-type sized
-	CRISPR_VMSZ_PNTR, //pointer-sized
-	CRISPR_VMSZ_WORD, //size as one word
-} Crispr_VmSz; //VmSz describes operand size for certain operations
-
-typedef enum Dll_Enum {
 	CRISPR_VMLD_LIT, //literal value
 	CRISPR_VMLD_OFF, //load offset
-	CRISPR_VMLD_REG_VM, //VM global register
-	CRISPR_VMLD_REG_RA, //caller-save register
-	CRISPR_VMLD_REG_IM, //intermediate-value register
+	CRISPR_VMLD_FLG, //flag load
+	CRISPR_VMLD_REG, //register
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
 typedef enum Dll_Enum {
 	CRISPR_VMOF_MEM, //memory offset
-	CRISPR_VMOF_GHE, //global heap current object offset
-	CRISPR_VMOF_LHE, //local heap current object offset
+	CRISPR_VMOF_OBJ, //current heap object offset
 	CRISPR_VMOF_STK, //stack offset
 	CRISPR_VMOF_SYM, //symbol offset
 	CRISPR_VMOF_FRM, //frame offset
 	CRISPR_VMOF_COD, //code pointer offset
 	CRISPR_VMOF_CUR, //instruction pointer offset
-	CRISPR_VMOF_FLG, //flag descriptor
 } Crispr_VmOf; //VmOf describes an offset type
 
 DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStack* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
