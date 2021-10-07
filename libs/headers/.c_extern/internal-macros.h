@@ -86,14 +86,17 @@
  #define Dll_NonNull(...)
 #endif
 #ifdef DLL_CC_GCC
- #define Dll_Pack(decl) decl __attribute__ ((packed))
- #define Dll_Enum __attribute__ ((packed))
-#elif defined DLL_OS_WINDOWS
- #define Dll_Pack(decl) __pragma(pack(push, 1)) decl __pragma(pack(pop))
- #define Dll_Enum
+ #define Dll_Enum __attribute__((packed))
 #else
- #error non-Windows OS not compatible with GNUC
+ #define Dll_Enum
 #endif
+#ifdef DLL_OS_WINDOWS
+ #define Dll_pragma(act) __pragma(#act) struct Dll_NoOpStr
+#else
+ #define Dll_pragma(act) _Pragma(#act) struct Dll_NoOpStr
+#endif
+#define Dll_pack(...) Dll_pragma(pack(__VA_ARGS__))
+#define DLL_ALIGN Dll_pragma(pack())
 #ifndef Utils_offset
  #define Utils_offset(type, field) ((decltype(sizeof 0))(&((type*)0)->field))
 #endif
