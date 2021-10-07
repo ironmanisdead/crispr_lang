@@ -91,9 +91,9 @@
  #define Dll_Enum
 #endif
 #ifdef DLL_OS_WINDOWS
- #define Dll_pragma(act) __pragma(#act) struct Dll_NoOpStr
+ #define Dll_pragma(act) __pragma(#act) extern int Dll_NoOpN
 #else
- #define Dll_pragma(act) _Pragma(#act) struct Dll_NoOpStr
+ #define Dll_pragma(act) _Pragma(#act) extern int Dll_NoOpN
 #endif
 #define Dll_pack(...) Dll_pragma(pack(__VA_ARGS__))
 #define DLL_ALIGN Dll_pragma(pack())

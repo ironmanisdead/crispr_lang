@@ -25,7 +25,7 @@ typedef union {
 } Crispr_VmWrd;
 
 typedef enum {
-	CRISPR_VMSZ_NONE, //void type, has no size (only for pointers)
+	CRISPR_VMSZ_PNTR, //pointer type
 	CRISPR_VMSZ_BYTE, //byte type
 	CRISPR_VMSZ_SHRT, //short int
 	CRISPR_VMSZ_INTG, //plain int
@@ -33,12 +33,13 @@ typedef enum {
 	CRISPR_VMSZ_FLOT, //single-precision floating point
 	CRISPR_VMSZ_DUBL, //double precision floating point
 	CRISPR_VMSZ_SIZE, //size type
-	CRISPR_VMSZ_WORD, //full sized (only for pointers)
+	CRISPR_VMSZ_WORD, //word sized
 } Crispr_VmSz;
 
-#define CRISPR_VMTY_PNTR 0x8000
 #define CRISPR_VMTY_SIGN 0x4000
+#define CRISPR_VMTY_DREF 0x8000
 #define Crispr_vmSz(typ) (Crispr_VmSz)(typ & 0x00FF)
+#define Crispr_vmTy(siz) (Crispr_VmTy)(siz)
 
 typedef Crispr_Ushort Crispr_VmTy;
 
@@ -49,25 +50,25 @@ typedef struct _Crispr_VmFixObj {
 	char data[]; //holds object (possibly with alignment padding)
 } Crispr_VmFixObj;
 
-typedef struct _Crispr_VmCodeSeg {
+typedef struct _Crispr_VmCdSeg {
 	Crispr_Uint ver; //Symbol version information
 	Crispr_Size len; //Code length information (zero if C code)
 	const char* code; //Segment base pointer
 	const char* sym; //Symbol header
-	struct _Crispr_VmCodeSeg* next; //next code segment
-	struct _Crispr_VmCodeSeg* back; //first code segment in version (unset if start of version)
-	struct _Crispr_VmCodeSeg* zero; //Starting code segment (set if end of version)
-} Crispr_VmCodeSeg;
+	struct _Crispr_VmCdSeg* next; //next code segment
+	struct _Crispr_VmCdSeg* back; //first code segment in version (unset if start of version)
+	struct _Crispr_VmCdSeg* zero; //Starting code segment (set if end of version)
+} Crispr_VmCdSeg;
 
 typedef struct _Crispr_VmNameSpace {
 	Crispr_Uint id; //namespace id/descriptor
-	Crispr_VmCodeSeg* base; //base (lowest version) codeseg for namespace
+	Crispr_VmCdSeg* base; //base (lowest version) codeseg for namespace
 	struct _Crispr_VmNameSpace* next; //next namespace
 } Crispr_VmNameSpace;
 
 #ifdef __GNUC__
  #pragma GCC poison _Crispr_VmFixObj
- #pragma GCC poison _Crispr_VmCodeSeg
+ #pragma GCC poison _Crispr_VmCdSeg
  #pragma GCC poison _Crispr_VmNameSpace
 #endif
 
@@ -83,8 +84,9 @@ struct _Crispr_VmStk {
 	Crispr_VM* vm; //parent VM context
 	Crispr_VmStk* next; //sibling stack
 	Crispr_VmStk** from; //pointer from previous stack
-	const Crispr_VmCodeSeg* segc; //current code segment
-	Crispr_Size ip; //code offset
+	const Crispr_VmCdSeg* segc; //current code segment
+	Crispr_Size sp; //instruction starting offset
+	Crispr_Size rp; //internal instruction read offset
 	Crispr_VmWrd cal[6]; //caller-save registers
 	Crispr_VmWrd imm[6]; //immediate registers
 	mtx_t lock; //used for non-owner to read/write, and for owner to reallocate
@@ -110,8 +112,9 @@ struct _Crispr_VmStk {
 #define CRISPR_VMFL_HF 0x80 //heap flag
 typedef short Crispr_VmFl;
 
-DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStk* restrict stack, Crispr_VM* vm, Crispr_Size init,
-		Crispr_Size len, Crispr_Errno* restrict err);
+DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStk* restrict stack, 
+		Crispr_VM* vm, Crispr_VmCdSeg* restrict ns, Crispr_Size len,
+		Crispr_Size code, Crispr_Errno* restrict err);
 
 DLL_PUBLIC bool Crispr_vmInit(Crispr_VM* vm, const Crispr_VmNameSpace* ns, Crispr_Errno* err);
 
@@ -144,15 +147,15 @@ typedef enum Dll_Enum {
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
 typedef enum Dll_Enum {
-	CRISPR_VMHP_FLP, //change from global to local, and vice verse
+	CRISPR_VMHP_FLP, //change from global to local, and vice versa
 	CRISPR_VMHP_GLO, //change heap to global
 	CRISPR_VMHP_LOC, //change heap to local
 	CRISPR_VMHP_NEW, //insert new object in heap (Off, Alignment)
 	CRISPR_VMHP_DEL, //deallocate object in heap
 	CRISPR_VMHP_CHG, //move over certain amount of allocations (Off)
 	CRISPR_VMHP_SET, //move certain amount of allocations from base pointer (Off)
-	CRISPR_VMHP_SIZ, //resize heap object (can cause object displacement) (Size)
-} Crispr_VmHp; //Heap oPerand
+	CRISPR_VMHP_SIZ, //resize heap object (can cause object relocation) (Size)
+} Crispr_VmHp; //Heap oPerator: operations that affect the heap
 
 typedef enum Dll_Enum {
 	CRISPR_VMLD_LIT, //literal value
@@ -172,8 +175,6 @@ typedef enum Dll_Enum {
 	CRISPR_VMOF_COD, //code pointer offset
 	CRISPR_VMOF_CUR, //instruction pointer offset
 } Crispr_VmOf; //VmOf describes an offset type
-
-Dll_pack(push, 1);
 
 typedef struct {
 	Crispr_VmOf type;
@@ -195,8 +196,6 @@ typedef struct {
 		} obj;
 	};
 } Crispr_VmRef;
-
-Dll_pack(pop);
 
 DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStk* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
 
