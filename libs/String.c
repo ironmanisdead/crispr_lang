@@ -27,7 +27,7 @@ DLL_PUBLIC Crispr_Off Crispr_strIter(const char* restrict str, Crispr_LoopStr lo
 start:
 	switch (loop(str, len, err)) {
 		case CRISPR_LOOP_FAIL:
-			return ~len;
+			return -len - 1;
 		case CRISPR_LOOP_CONT:
 			if (++len < 0) {
 				if (err)
@@ -40,7 +40,7 @@ start:
 		default:
 			if (err)
 				*err = CRISPR_ERR_INVAL;
-			return ~len;
+			return -len - 1; //two's complement inverse
 	}
 }
 
