@@ -165,7 +165,6 @@ typedef enum Dll_Enum {
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
 typedef enum Dll_Enum {
-	CRISPR_VMOF_FLG, //flag offset, (used for references)
 	CRISPR_VMOF_MEM, //memory offset
 	CRISPR_VMOF_OBJ, //current heap object offset
 	CRISPR_VMOF_STK, //stack offset
@@ -177,24 +176,11 @@ typedef enum Dll_Enum {
 } Crispr_VmOf; //VmOf describes an offset type
 
 typedef struct {
-	Crispr_VmOf type;
-	union {
-		Crispr_VmFl flags;
-		struct _Crispr_VmPtr {
-			char* base;
-			Crispr_Off off;
-			Crispr_Off mult;
-		} ptr;
-		struct {
-			bool local;
-			union {
-				Crispr_VM* vm; //if global
-				Crispr_VmStk* stack; //if local
-			};
-			Crispr_Off off;
-			Crispr_Off mult;
-		} obj;
-	};
+	Crispr_VmFl flags;
+	struct {
+		mtx_t* lock;
+		char *addr;
+	} ptr;
 } Crispr_VmRef;
 
 DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStk* restrict stack, Crispr_Size exec, Crispr_Errno* restrict err);
