@@ -37,6 +37,7 @@ DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStk* restrict stack,
 	stack->sp = start;
 	stack->rp = start;
 	stack->segc = ns;
+	stack->flags = CRISPR_VMFL_BF; //sets interrupt flag
 	stack->frame = 0;
 	stack->end = 0;
 	mtx_unlock(&vm->lock);
@@ -123,6 +124,10 @@ static bool crispr_vm_offset(Crispr_VmRef* restrict res, Crispr_VmStk* restrict 
 			stack->rp += sizeof(Crispr_VmOf);
 			res->ptr.addr = (char*)&stack->origin[stack->frame];
 			break;
+		case CRISPR_VMOF_CAL:
+			stack->rp += sizeof(Crispr_VmOf);
+			res->ptr.addr = (char*)&stack->origin[stack->call];
+			break;
 		case CRISPR_VMOF_SYM:
 			stack->rp += sizeof(Crispr_VmOf);
 			Crispr_Off calc = Crispr_strIter(&stack->segc->code[stack->rp], &Crispr_symVm, err);
@@ -132,6 +137,8 @@ static bool crispr_vm_offset(Crispr_VmRef* restrict res, Crispr_VmStk* restrict 
 				return false;
 			}
 			break;
+		case CRISPR_VMOF_OBJ:
+			stack->rp += sizeof(Crispr_VmOf);
 			/*
 		default:
 			if (err)
@@ -204,9 +211,49 @@ static bool crispr_vm_getWord(Crispr_VmWrd* restrict wrd, Crispr_VmStk* restrict
 				return false;
 			}
 			stack->rp += sizeof(Crispr_VmLd);
-			Crispr_VmRef wrd;
-			if (!crispr_vm_offset(&wrd, stack, err))
+			{
+				Crispr_VmRef ref;
+				if (!crispr_vm_offset(&ref, stack, err))
+					return false;
+				wrd->ptr = ref.ptr.addr;
+			}
+			break;
+		case CRISPR_VMLD_REG:
+			stack->rp += sizeof(Crispr_VmLd);
+			crispr_realign(Crispr_VmLd, stack);
+			Crispr_VmRg reg = *(const Crispr_VmRg*)(&stack->segc->code[stack->rp]);
+			stack->rp += sizeof(Crispr_VmRg);
+			reg &= 0x00FF;
+			if (reg > 5) {
+				if (err)
+					*err = CRISPR_ERR_VM_ARG;
 				return false;
+			}
+			switch (Crispr_vmRgLd(reg)) {
+				case CRISPR_VMRG_IMM:
+					*wrd = stack->imm[reg];
+					break;
+				case CRISPR_VMRG_CAL:
+					*wrd = stack->cal[reg];
+					break;
+				case CRISPR_VMRG_GLB:
+					{
+						mtx_t* lock = &stack->vm->lock;
+						mtx_lock(lock);
+						*wrd = stack->vm->regs[reg];
+						mtx_unlock(lock);
+					}
+			}
+			break;
+		case CRISPR_VMLD_FLG:
+			stack->rp += sizeof(Crispr_VmLd);
+			crispr_realign(Crispr_VmFl, stack);
+			{
+				Crispr_VmFl flg = *(const Crispr_VmFl*)(&stack->segc->code[stack->rp]);
+				stack->rp += sizeof(Crispr_VmFl);
+				flg &= stack->flags;
+				wrd->ubyte = flg ? 1 : 0;
+			}
 	}
 	return true;
 }
@@ -236,7 +283,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_vmRun(Crispr_VmStk* restrict stack, Crispr_Siz
 				stack->rp += sizeof(Crispr_VmOp);
 				break;
 			case CRISPR_VMOP_STOP:
-				stack->rp += sizeof(Crispr_VmOp);
+				stack->sp += sizeof(Crispr_VmOp);
 				return CRISPR_LOOP_CONT;
 			case CRISPR_VMOP_HALT:
 				return CRISPR_LOOP_DONE;

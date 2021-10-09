@@ -75,8 +75,7 @@ typedef struct _Crispr_VmNameSpace {
 typedef struct {
 	mtx_t lock; //locks the VM when a stack is using it
 	Crispr_VmStk* stack; //pointer to the first loaded stack
-	Crispr_VmWrd regs[6];
-	short flags; //flags register
+	Crispr_VmWrd regs[6]; //global registers
 	const Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
 } Crispr_VM;
 
@@ -92,6 +91,7 @@ struct _Crispr_VmStk {
 	mtx_t lock; //used for non-owner to read/write, and for owner to reallocate
 	Crispr_Size len; //current allocated length of stack
 	char* origin; //stack origin
+	short flags; //flags register
 	Crispr_VmFixObj* fixed; //pointer to linked list of Fixed objects
 	Crispr_Off frame; //current function call frame offset
 	Crispr_Off call; //callframe for next function to call (0 if not set, negative is considered errorneous)
@@ -109,7 +109,8 @@ struct _Crispr_VmStk {
 #define CRISPR_VMFL_PF 0x10 //parity flag
 #define CRISPR_VMFL_DF 0x20 //direction flag
 #define CRISPR_VMFL_BF 0x40 //interrupt flag
-#define CRISPR_VMFL_HF 0x80 //heap flag
+#define CRISPR_VMFL_HF 0x80 //heap locality flag
+
 typedef short Crispr_VmFl;
 
 DLL_PUBLIC bool Crispr_vmStackInit(Crispr_VmStk* restrict stack, 
@@ -165,12 +166,23 @@ typedef enum Dll_Enum {
 } Crispr_VmLd; //VmLd describes the location (or load) of the operand
 
 typedef enum Dll_Enum {
+	CRISPR_VMRG_IMM, //immediate register
+	CRISPR_VMRG_CAL, //call-save register
+	CRISPR_VMRG_GLB, //global register
+} Crispr_VmRgLd;
+
+typedef Crispr_Ushort Crispr_VmRg;
+
+#define Crispr_vmRgLd(num) (Crispr_VmRgLd)(num >> 16)
+#define Crispr_vmRgId(num) (num & 0x00FF)
+
+typedef enum Dll_Enum {
 	CRISPR_VMOF_MEM, //memory offset
 	CRISPR_VMOF_OBJ, //current heap object offset
 	CRISPR_VMOF_STK, //stack offset
 	CRISPR_VMOF_SYM, //symbol offset
-	CRISPR_VMOF_FRM, //frame offset
-	CRISPR_VMOF_CAL, //call frame offset
+	CRISPR_VMOF_FRM, //current call frame offset
+	CRISPR_VMOF_CAL, //pending call frame offset
 	CRISPR_VMOF_COD, //code pointer offset
 	CRISPR_VMOF_CUR, //instruction pointer offset
 } Crispr_VmOf; //VmOf describes an offset type
