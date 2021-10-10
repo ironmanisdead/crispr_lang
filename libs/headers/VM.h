@@ -46,6 +46,8 @@ typedef Crispr_Ushort Crispr_VmTy;
 typedef struct _Crispr_VmFixObj {
 	mtx_t airlock; //locks access to next Fixed object
 	Crispr_Size len; //holds allocation size
+	Crispr_Size align; //holds base pointer alignment specification
+	struct _Crispr_VmFixObj** prev; //holds pointer to object holding itself
 	struct _Crispr_VmFixObj* next; //holds pointer to next Fixed object
 	char data[]; //holds object (possibly with alignment padding)
 } Crispr_VmFixObj;
@@ -76,6 +78,7 @@ typedef struct {
 	mtx_t lock; //locks the VM when a stack is using it
 	Crispr_VmStk* stack; //pointer to the first loaded stack
 	Crispr_VmWrd regs[6]; //global registers
+	Crispr_VmFixObj* heap; //pointer to global heap
 	const Crispr_VmNameSpace* restrict base; //base namespace for symbol loading
 } Crispr_VM;
 
@@ -92,7 +95,7 @@ struct _Crispr_VmStk {
 	Crispr_Size len; //current allocated length of stack
 	char* origin; //stack origin
 	short flags; //flags register
-	Crispr_VmFixObj* fixed; //pointer to linked list of Fixed objects
+	Crispr_VmFixObj* heap; //pointer to local heap
 	Crispr_Off frame; //current function call frame offset
 	Crispr_Off call; //callframe for next function to call (0 if not set, negative is considered errorneous)
 	Crispr_Off end; //stack ending offset (where push puts things, and pop pops things)
