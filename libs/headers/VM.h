@@ -151,8 +151,8 @@ typedef enum Dll_Enum {
 } Crispr_VmOp; //VmOp describes the type of operation (or prefix)
 
 typedef enum Dll_Enum {
-	CRISPR_VMHP_FLP, //change from global to local, and vice versa
-	CRISPR_VMHP_GLO, //change heap to global
+	CRISPR_VMHP_GLB, //change heap to global
+	CRISPR_VMHP_FAM, //change heap to global family
 	CRISPR_VMHP_LOC, //change heap to local
 	CRISPR_VMHP_NEW, //insert new object in heap (Off, Alignment)
 	CRISPR_VMHP_DEL, //deallocate object in heap

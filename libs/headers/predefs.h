@@ -37,14 +37,17 @@ typedef struct _Crispr_Bindings Crispr_Bindings;
 typedef struct _Crispr_Field Crispr_Field;
 typedef struct _Crispr_Error Crispr_Error;
 typedef const Crispr_Error* restrict Crispr_Errno;
-#define Crispr_boolStr(exp) ((exp) ? ("(" #exp ") is true") : ("(" #exp ") is false"))
-#define CRISPR_NULL (void*)(0)
-#define Crispr_nullRef(type) (type*)(0)
-#define Crispr_nullFun(ret, ...) (ret (*)(__VA_ARGS__))(0)
+#define _Crispr_refSet_true(ptr, val) (bool)(ptr && (true,(*ptr = val)))
+#define _Crispr_refSet_false(ptr, val) (void)(ptr && (*ptr = val))
+#define Crispr_refSet(ptr, val, keep) _Crispr_refSet_##keep(ptr, val) //sets value at ptr to val if ptr is non-null
+#define Crispr_boolStr(exp) ((exp) ? ("(" #exp ") is true") : ("(" #exp ") is false")) //shows validity of expression
+#define CRISPR_NULL (void*)(0) //null void
+#define Crispr_nullRef(type) (type*)(0) //null pointer to any object
+#define Crispr_nullFun(ret, ...) (ret (*)(__VA_ARGS__))(0) //null pointer to function (use void for varargs if no arguments)
 #pragma push_macro("DLL_EXPORTED")
 #define DLL_EXPORTED DLL_EXPORT_LIB_crispr_api
 #include ".c_extern/internal-macros.h"
 #pragma pop_macro("DLL_EXPORTED")
-#ifndef _GNU_SOURCE
+#if (defined DLL_OS_UNIX) && ! (defined _GNU_SOURCE)
  #define _GNU_SOURCE 1
 #endif
