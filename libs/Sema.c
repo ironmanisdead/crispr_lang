@@ -12,11 +12,11 @@ static Crispr_Sema crispr_schedread; //constant to signify semaphore read status
 static Crispr_Sema crispr_schedwait; //constant to signify semaphore busy status
 
 DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limit, Crispr_Errno* restrict err) {
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	atomic_init(&target->status, CRISPR_SEMA_DEAD);
 	target->threads = 0;
 	if (mtx_init(&target->access, mtx_plain) == thrd_error) {
-		if (err)
-			*err = CRISPR_ERR_SYS;
+		Crispr_refSet(err, CRISPR_ERR_SYS, false);
 		return false;
 	}
 	if (limit > 0) {
@@ -30,13 +30,11 @@ DLL_PUBLIC bool Crispr_sema_init(Crispr_Sema* restrict target, Crispr_Ulong limi
 		int i = cnd_init(&target->waiter);
 		if (i == thrd_error) {
 			mtx_destroy(&target->access);
-			if (err)
-				*err = CRISPR_ERR_SYS;
+			Crispr_refSet(err, CRISPR_ERR_SYS, false);
 			return false;
 		} else if (i == thrd_nomem) {
 			mtx_destroy(&target->access);
-			if (err)
-				*err = CRISPR_ERR_NOMEM;
+			Crispr_refSet(err, CRISPR_ERR_NOMEM, false);
 			return false;
 		}
 	}
@@ -142,13 +140,11 @@ static bool crispr_sema_time(char* restrict pres, struct timespec* restrict dest
 }
 
 DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Timer* restrict wait, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	char lock = crispr_sema_statlock(target);
 	if (lock & (CRISPR_SEMA_TERM | CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
 		crispr_sema_statrel(target, lock);
-		if (err)
-			*err = CRISPR_ERR_STALE;
+		Crispr_refSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	{
@@ -187,14 +183,12 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 		if (i == thrd_error) {
 			mtx_unlock(&target->access);
 			--target->threads;
-			if (err)
-				*err = CRISPR_ERR_SYS;
+			Crispr_refSet(err, CRISPR_ERR_SYS, false);
 			return false;
 		} else if (i == thrd_nomem) {
 			mtx_unlock(&target->access);
 			--target->threads;
-			if (err)
-				*err = CRISPR_ERR_NOMEM;
+			Crispr_refSet(err, CRISPR_ERR_NOMEM, false);
 			return false;
 		}
 		*latest = &waiter;
@@ -221,14 +215,12 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 			} else if (load & CRISPR_SEMA_KILL) {
 				--target->threads;
 				crispr_sema_statrel(target, load);
-				if (err)
-					*err = CRISPR_ERR_DEAD;
+				Crispr_refSet(err, CRISPR_ERR_DEAD, false);
 				return false;
 			}
 			--target->threads;
 			crispr_sema_statrel(target, load);
-			if (err)
-				*err = CRISPR_ERR_TIMEDOUT;
+			Crispr_refSet(err, CRISPR_ERR_TIMEDOUT, false);
 			return false;
 		} else {
 			char load = crispr_sema_statlock(target);
@@ -236,8 +228,7 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 				mtx_unlock(&target->access);
 				--target->threads;
 				crispr_sema_statrel(target, load);
-				if (err)
-					*err = CRISPR_ERR_DEAD;
+				Crispr_refSet(err, CRISPR_ERR_DEAD, false);
 				return false;
 			} else if ((load & CRISPR_SEMA_TERM) && (target->threads < 2)) {
 				mtx_unlock(&target->access);
@@ -267,14 +258,12 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 		if (result == thrd_timedout) {
 			mtx_unlock(&target->access);
 			--target->threads;
-			if (err)
-				*err = CRISPR_ERR_TIMEDOUT;
+			Crispr_refSet(err, CRISPR_ERR_TIMEDOUT, false);
 			return false;
 		} else if (lock == CRISPR_SEMA_KILL) {
 			mtx_unlock(&target->access);
 			--target->threads;
-			if (err)
-				*err = CRISPR_ERR_DEAD;
+			Crispr_refSet(err, CRISPR_ERR_DEAD, false);
 			return false;
 		}
 	}
@@ -284,13 +273,11 @@ DLL_PUBLIC bool Crispr_sema_lock(Crispr_Sema* target, bool term, const Crispr_Ti
 }
 
 DLL_PUBLIC bool Crispr_sema_unlock(Crispr_Sema* target, Crispr_Errno* err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	char lock = crispr_sema_statlock(target);
 	if (lock & (CRISPR_SEMA_TERM | CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
 		crispr_sema_statrel(target, lock);
-		if (err)
-			*err = CRISPR_ERR_STALE;
+		Crispr_refSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	{
@@ -310,8 +297,7 @@ DLL_PUBLIC bool Crispr_sema_unlock(Crispr_Sema* target, Crispr_Errno* err) {
 		} else if (target->counter < target->limit) {
 			target->counter += 1;
 		} else {
-			if (err)
-				*err = CRISPR_ERR_AGAIN;
+			Crispr_refSet(err, CRISPR_ERR_AGAIN, false);
 			mtx_unlock(&target->access);
 			--target->threads;
 			return false;
@@ -323,13 +309,11 @@ DLL_PUBLIC bool Crispr_sema_unlock(Crispr_Sema* target, Crispr_Errno* err) {
 }
 
 DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	char lock = crispr_sema_statlock(target);
 	if (lock == (CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
 		crispr_sema_statrel(target, lock);
-		if (err)
-			*err = CRISPR_ERR_STALE;
+		Crispr_refSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	{
@@ -362,13 +346,11 @@ DLL_PUBLIC bool Crispr_sema_destroy(Crispr_Sema* target, Crispr_Errno* restrict 
 }
 
 DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sema* src, bool term, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	char lock = crispr_sema_statlock(src);
 	if (lock & (CRISPR_SEMA_TERM | CRISPR_SEMA_KILL | CRISPR_SEMA_DEAD)) {
 		crispr_sema_statrel(src, lock);
-		if (err)
-			*err = CRISPR_ERR_STALE;
+		Crispr_refSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	{
@@ -391,13 +373,11 @@ DLL_PUBLIC bool Crispr_sema_schedInit(Crispr_SemSched* restrict dest, Crispr_Sem
 }
 
 DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	Crispr_Sema* parent = crispr_semsched_plock(sched);
 	if (parent == Crispr_nullRef(Crispr_Sema)) {
 		crispr_semsched_prel(sched, parent);
-		if (err)
-			*err = CRISPR_ERR_STALE;
+		Crispr_refSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	if (parent == &crispr_schedwait) {
@@ -415,8 +395,7 @@ DLL_PUBLIC bool Crispr_sema_schedCancel(Crispr_SemSched* sched, Crispr_Errno* re
 
 DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Timer* restrict wait,
 		Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	char present;
 	struct timespec timeconv;
 	if (!crispr_sema_time(&present, &timeconv, wait, err))
@@ -428,8 +407,7 @@ DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Tim
 	}
 	if (parent == &crispr_schedwait) {
 		crispr_semsched_prel(sched, parent);
-		if (err)
-			*err = CRISPR_ERR_ACCESS;
+		Crispr_refSet(err, CRISPR_ERR_ACCESS, false);
 		return false;
 	}
 	crispr_semsched_prel(sched, &crispr_schedwait);
@@ -448,19 +426,16 @@ DLL_PUBLIC bool Crispr_sema_schedFinish(Crispr_SemSched* sched, const Crispr_Tim
 			break;
 		default:
 			mtx_unlock(&parent->access);
-			if (err)
-				*err = CRISPR_ERR_AGAIN;
+			Crispr_refSet(err, CRISPR_ERR_AGAIN, false);
 			return false;
 	}
 	mtx_unlock(&parent->access);
 	if (result == thrd_timedout) {
-		if (err)
-			*err = CRISPR_ERR_AGAIN;
+		Crispr_refSet(err, CRISPR_ERR_AGAIN, false);
 		return false;
 	}
 	if (crispr_semsched_pxchg(sched, Crispr_nullRef(Crispr_Sema)) == Crispr_nullRef(Crispr_Sema)) {
-		if (err)
-			*err = CRISPR_ERR_ACCESS;
+		Crispr_refSet(err, CRISPR_ERR_ACCESS, false);
 		return false;
 	}
 	return true;

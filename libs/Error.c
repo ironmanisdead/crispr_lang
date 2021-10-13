@@ -46,14 +46,13 @@ DLL_PUBLIC bool Crispr_errIsA(Crispr_Errno err, Crispr_Errno cmp) {
 }
 
 DLL_PUBLIC Dll_NonNull(1, 2) char* _Crispr_errSymMake(const char* restrict name, const char* restrict desc, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	Crispr_Off len = Crispr_symLen(name, err);
 	if (len < 0)
 		return Crispr_nullRef(char);
 	char* result = Crispr_malloc(len + Crispr_strLen(desc) + 2);
 	if (!result) {
-		*err = CRISPR_ERR_NOMEM;
+		Crispr_refSet(err, CRISPR_ERR_NOMEM);
 		return Crispr_nullRef(char);
 	}
 	Crispr_strCpy(result, name);
@@ -75,13 +74,12 @@ DLL_PUBLIC Dll_NonNull(1) bool _Crispr_errSet(Crispr_Error* restrict res, struct
 }
 
 DLL_PUBLIC Dll_NonNull(1) bool _Crispr_errDynFree(Crispr_Error* restrict target, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	if (!target->data.alloc) {
-		*err = CRISPR_ERR_ATTR;
+		Crispr_errSet(err, CRISPR_ERR_ATTR, false);
 		return false;
 	} else if (target->data.erralloc == Crispr_nullRef(char)) {
-		*err = CRISPR_ERR_STALE;
+		Crispr_errSet(err, CRISPR_ERR_STALE, false);
 		return false;
 	}
 	Crispr_free(target->data.erralloc);

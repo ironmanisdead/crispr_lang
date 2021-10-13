@@ -22,24 +22,21 @@ DLL_PUBLIC Crispr_Size Crispr_strCpy(char* restrict dst, const char* restrict sr
 
 DLL_PUBLIC Crispr_Off Crispr_strIter(const char* restrict str, Crispr_LoopStr loop, Crispr_Errno* restrict err) {
 	Crispr_Off len = 0;
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 start:
 	switch (loop(str, len, err)) {
 		case CRISPR_LOOP_FAIL:
 			return -len - 1;
 		case CRISPR_LOOP_CONT:
 			if (++len < 0) {
-				if (err)
-					*err = CRISPR_ERR_RANGE;
+				Crispr_refSet(err, CRISPR_ERR_RANGE, false);
 				return len;
 			}
 			goto start;
 		case CRISPR_LOOP_DONE:
 			return len;
 		default:
-			if (err)
-				*err = CRISPR_ERR_INVAL;
+			Crispr_refSet(err, CRISPR_ERR_INVAL, false);
 			return -len - 1; //two's complement inverse
 	}
 }
@@ -50,8 +47,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_symName(const char* restrict str, Crispr_Size 
 		if ( (ch == '_') || ((ch >= 'A') && (ch <= 'Z')) || ((ch >= 'a') && (ch <= 'z')) ) {
 			return CRISPR_LOOP_CONT;
 		} else {
-			if (err)
-				*err = CRISPR_ERR_SYMBOL;
+			Crispr_refSet(err, CRISPR_ERR_SYMBOL, false);
 			return CRISPR_LOOP_FAIL;
 		}
 	} else {
@@ -62,8 +58,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_symName(const char* restrict str, Crispr_Size 
 				((ch >= '0') && (ch <= '9')) ) {
 			return CRISPR_LOOP_CONT;
 		}
-		if (err)
-			*err = CRISPR_ERR_SYMBOL;
+		Crispr_refSet(err, CRISPR_ERR_SYMBOL, false);
 		return CRISPR_LOOP_FAIL;
 	}
 }
@@ -76,8 +71,7 @@ DLL_PUBLIC Crispr_LoopStat Crispr_symVm(const char* restrict str, Crispr_Size of
 	if ((stat == CRISPR_LOOP_FAIL) && (str[off] == '.')) {
 		return CRISPR_LOOP_CONT;
 	} else {
-		if (err)
-			*err = rec;
+		Crispr_refSet(err, rec, false);
 		return stat;
 	}
 }

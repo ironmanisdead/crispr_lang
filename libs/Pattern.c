@@ -5,14 +5,12 @@ DLL_HIDE
 
 DLL_PUBLIC bool Crispr_patternApply(Crispr_S64* restrict dest, Crispr_S64 src,
 		const Crispr_Pattern* restrict ref, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	*dest = src;
 	if (ref->len == 0)
 		return true;
 	if (ref->rules == Crispr_nullRef(Crispr_Rule)) {
-		if (err)
-			*err = CRISPR_ERR_NULL;
+		Crispr_refSet(err, CRISPR_ERR_NULL, false);
 		return false;
 	}
 	for (Crispr_Size i = 0; i < ref->len; i++) {
@@ -40,13 +38,11 @@ DLL_PUBLIC bool Crispr_patternApply(Crispr_S64* restrict dest, Crispr_S64 src,
 
 DLL_PUBLIC bool Crispr_patternRemove(Crispr_S64* restrict dest, Crispr_S64 src,
 		const Crispr_Pattern* restrict ref, Crispr_Errno* restrict err) {
-	if (err)
-		*err = CRISPR_ERR_NOERR;
+	Crispr_refSet(err, CRISPR_ERR_NOERR, false);
 	if (ref->len == 0)
 		return true;
 	if (ref->rules == Crispr_nullRef(Crispr_Rule)) {
-		if (err)
-			*err = CRISPR_ERR_NULL;
+		Crispr_refSet(err, CRISPR_ERR_NULL, false);
 		return false;
 	}
 	*dest = src;
