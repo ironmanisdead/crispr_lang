@@ -1,3 +1,4 @@
+#include "macro.h"
 #undef DLL_PUBLIC
 #undef DLL_LOCAL
 #undef DLL_HIDE
