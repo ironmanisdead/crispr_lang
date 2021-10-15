@@ -92,11 +92,14 @@
  #define Dll_Enum
 #endif
 #ifdef DLL_OS_WINDOWS
- #define Dll_pragma(act) __pragma(#act) extern int Dll_NoOpN
+ #define _Dll_secpragma(act) __pragma(act)
 #else
- #define Dll_pragma(act) _Pragma(#act) extern int Dll_NoOpN
+ #define _Dll_secpragma(act) _Pragma(act)
 #endif
-#define Dll_pack(...) Dll_pragma(pack(__VA_ARGS__))
+#define _Dll_prag_global(act) _Dll_secpragma(act) extern int Dll_NoOp
+#define _Dll_prag_local(act) _Dll_secpragma(act)
+#define Dll_pragma(scope, act) _Dll_prag_##scope(#act)
+#define Dll_pack(...) Dll_pragma(global, pack(__VA_ARGS__))
 #define DLL_ALIGN Dll_pragma(pack())
 #ifndef Utils_offset
  #define Utils_offset(type, field) ((decltype(sizeof 0))(&((type*)0)->field))
