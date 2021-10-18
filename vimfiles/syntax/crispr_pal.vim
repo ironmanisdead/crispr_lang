@@ -8,9 +8,9 @@ endif
 "ToDo Comments
 syntax keyword CrisprTodo TODO XXX FIXME NOTE
 
-syntax keyword CrisprOp noop lock stop halt
-			\mov jmp put pop
-			\frame ret heap cal call
+syntax keyword CrisprOp noop lock stop halt 
+			\mov jmp put pop frame 
+			\ret heap cal call
 
 syntax match CrisprReg "%\vr[gcl][0-5]"
 syntax match CrisprInt "$\v<(0|[1-9]\d*)>\ze($|[^.])"
