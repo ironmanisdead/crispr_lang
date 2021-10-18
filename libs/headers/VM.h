@@ -127,6 +127,7 @@ typedef enum Dll_Enum {
 	CRISPR_VMOP_LOCK, //lock: make sure next instruction is not executed with any other locked instructions
 	CRISPR_VMOP_STOP, //stop: defer execution of this code until Crispr_vmRun is called on it again
 	CRISPR_VMOP_HALT, //halt: prevent this code from running any more
+	CRISPR_VMOP_FRAM, //frame: sets up call frame of function to be called
 	CRISPR_VMOP_MOV, //move: move one thing into another
 	CRISPR_VMOP_POS, //position: get effective address of offset
 	CRISPR_VMOP_XCH, //exchange: swap two values
@@ -143,7 +144,6 @@ typedef enum Dll_Enum {
 	CRISPR_VMOP_SIZ, //re-sizes the stack according to the first operand (Crispr_Size)
 	CRISPR_VMOP_PUT, //pushes value into stack, and resizes if nessecary
 	CRISPR_VMOP_POP, //pops last pushed value out of stack
-	CRISPR_VMOP_FRM, //sets call frame of function
 	CRISPR_VMOP_JMP, //jumps with more conditions specified
 	CRISPR_VMOP_CAL, //calls another function
 	CRISPR_VMOP_RET, //returns from function
