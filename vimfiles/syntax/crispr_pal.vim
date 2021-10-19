@@ -6,25 +6,31 @@ if exists("b:current_syntax")
 endif
 
 "ToDo Comments
-syntax keyword CrisprTodo TODO XXX FIXME NOTE
+syntax match CrisprTodo "\v<(TODO|FIXME|NOTE|XXX)>:{,1}" contained
 
 syntax keyword CrisprOp noop lock stop halt 
 			\mov jmp put pop frame 
-			\ret heap cal call
+			\ret cal call
+
+syntax keyword CrisprHeap glo fam loc contained
+
+syntax keyword CrisprOp heap nextgroup=CrisprHeap skipwhite
 
 syntax match CrisprReg "%\vr[gcl][0-5]"
-syntax match CrisprInt "$\v<(0|[1-9]\d*)>\ze($|[^.])"
+syntax match CrisprDec "$\v<(0|[1-9]\d*)>\ze($|[^.])"
 syntax match CrisprFloat "$\v<\d+\.\d+>"
-syntax match CrisprHex "$\v<0x([0-9a-fA-F]|[1-9a-fA-F][0-9a-fA-F]*)>"
-syntax match CrisprOct "$\v<0[1-7][0-7]*>"
+syntax match CrisprHex "$\v<0x[0-9a-fA-F]+>"
+syntax match CrisprOct "$\v<0[0-7]+>"
 
-syntax region CrisprComment start=/\/\// end=/\n/
-syntax region CrisprComment start=/\/\*/ end=/\*\//
+syntax region CrisprComment start=/\/\// end=/\n/ contains=CrisprTodo
+syntax region CrisprComment start=/\/\*/ end=/\*\// contains=CrisprTodo
 
 highlight default link CrisprOp Operator
-highlight default link CrisprInt Number
+highlight default link CrisprDec Number
 highlight default link CrisprFloat Number
 highlight default link CrisprHex Number
 highlight default link CrisprOct Number
 highlight default link CrisprComment Comment
 highlight default link CrisprReg Special
+highlight default link CrisprHeap Special
+highlight default link CrisprTodo Todo
